@@ -45,20 +45,8 @@
     <p>Manage your groups and tasks here.</p>
 
     <!-- Group Boxes -->
-    <div class="group-container">
-        <div class="group-box" id="group1">
-            <h4>Group 1</h4>
-            <p>Description of Group 1.</p>
-        </div>
-        <div class="group-box" id="group2">
-            <h4>Group 2</h4>
-            <p>Description of Group 2.</p>
-        </div>
-        <div class="group-box" id="group3">
-            <h4>Group 3</h4>
-            <p>Description of Group 3.</p>
-        </div>
-        <!-- More group boxes can go here -->
+    <div class="group-container" id="groupContainer">
+        <!-- Groups will be dynamically inserted here -->
     </div>
 </div>
 
@@ -141,7 +129,6 @@
         }
     }
 
-
     async function handleCreateGroup() {
         const groupName = document.getElementById('createGroupName').value;
         const groupPassword = document.getElementById('createGroupPassword').value;
@@ -165,6 +152,72 @@
         alert('You have logged out!');
         window.location.href = '/';  // Redirect to homepage or login page
     }
+
+    async function fetchUserGroups() {
+        // Retrieve the user ID from localStorage
+        const userId = localStorage.getItem('userId');
+        if (!userId) {
+            alert('User is not logged in!');
+            return;
+        }
+
+        try {
+            // Fetch the user groups from the API
+            const res = await fetch(`${BASE_URL}/group/get-user-groups/${userId}`);
+
+            if (!res.ok) {
+                throw new Error(`Failed to fetch groups: ${res.status}`);
+            }
+
+            // Parse the response to JSON
+            const groups = await res.json();
+
+            // Store the fetched group data in localStorage (all group details)
+            groups.forEach(group => {
+                localStorage.setItem(group.id.timestamp, JSON.stringify(group)); // Storing full group data
+            });
+
+            // Get the container where groups will be displayed
+            const groupContainer = document.getElementById('groupContainer');
+            groupContainer.innerHTML = ''; // Clear any previous content
+
+            if (groups.length === 0) {
+                groupContainer.innerHTML = '<p>No groups found. Create one or join an existing group!</p>';
+            } else {
+                // Loop through each group and create a group box, displaying only the name
+                groups.forEach(group => {
+                    const groupBox = document.createElement('div');
+                    groupBox.classList.add('group-box');
+                    groupBox.innerHTML = `
+                        <h4>${group.name}</h4> <!-- Displaying only the group name -->
+                        <p>${group.description || 'No description available.'}</p>
+                    `;
+
+                    // Add event listener to the group box to allow navigating to the group's details
+                    groupBox.addEventListener('click', () => {
+                        // Retrieve the full group data from localStorage
+                        const fullGroupData = JSON.parse(localStorage.getItem(group.id.timestamp));
+                        if (fullGroupData) {
+                            console.log('Full group data:', fullGroupData);
+                            // You can use the full group data for further actions, like redirecting or displaying it
+                            // Example: Navigate to a new page or open a modal with group details
+                            window.location.href = `/group-details.html?id=${group.id.timestamp}`;
+                        }
+                    });
+
+                    groupContainer.appendChild(groupBox);
+                });
+            }
+        } catch (error) {
+            console.error('Error fetching user groups:', error);
+            alert('An error occurred while fetching groups.');
+        }
+    }
+
+    // Call the function to fetch and display groups when the page loads
+    window.onload = async function() {
+        await fetchUserGroups();
+    };
 </script>
 </body>
 </html>
