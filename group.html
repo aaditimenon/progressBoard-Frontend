@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Group Details - Progress Board</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
@@ -146,9 +148,30 @@
         </div>
     </div>
 </nav>
+<!-- Settings Modal -->
+<div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content" style="background-color: #1e1e2f; color: #fff;">
+      <div class="modal-header border-0">
+        <h5 class="modal-title" id="settingsModalLabel">Group Settings</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p><strong>Group ID:</strong> <span id="modalGroupId">Loading...</span></p>
+      </div>
+      <div class="modal-footer border-0">
+            <button type="button" class="btn btn-danger" id="leaveGroupBtn">Leave Group</button>
+      </div>
+      <div class="modal-footer border-0">
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 
 <div class="container py-4">
-    <h2 class="mb-4 text-light">Group Leaderboard & Tasks</h2>
+    <h2 class="mb-4 text-light">Daily Leaderboard</h2>
     <div class="main-content">
         <div class="leaderboard">
             <h4>Leaderboard</h4>
@@ -162,6 +185,9 @@
             <div class="action-buttons">
                 <button id="addDayBtn" class="btn btn-primary">Add Day</button>
                 <button id="addTaskBtn" class="btn btn-success" disabled>Add Task</button>
+                <button id="settingsBtn" class="btn btn-outline-secondary btn-sm ms-2">
+                    <i class="bi bi-gear"></i> Settings
+                </button>
             </div>
             
             <form id="taskForm" class="d-none">
@@ -176,8 +202,8 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    const TASK_BASE = 'http://localhost:8081/task';
-    const GROUP_BASE = 'http://localhost:8081/group';
+    const TASK_BASE = 'https://progress-board-1409-20917d01.koyeb.app/task';
+    const GROUP_BASE = 'https://progress-board-1409-20917d01.koyeb.app/group';
     const userId = localStorage.getItem('userId');
     
     // Track current day
@@ -480,9 +506,7 @@
                     '<div class="alert alert-danger">No group ID specified in URL.</div>';
                 return;
             }
-
-            console.log("OBJECT ID PASSED: ", groupId);
-
+            localStorage.setItem("groupId", groupId);
             const response = await fetch(`${GROUP_BASE}/getUsers_and_progress?groupId=${groupId}`);
             if (!response.ok) throw new Error(`API error: ${response.status}`);
 
@@ -561,15 +585,50 @@
         const completedTasks = userData.tasks.filter(task => task.completed).length;
         return (completedTasks / userData.tasks.length) * 100;
     }
-document.addEventListener('DOMContentLoaded', () => {
-    if (!userId) return handleLogout();
-    
-    loadGroups();
-    loadTasks();
-    loadLeaderboardData(); // Replace the mock leaderboard with real data
-});
 
-    
+    document.addEventListener('DOMContentLoaded', () => {
+        if (!userId) return handleLogout();
+        
+        loadGroups();
+        loadTasks();
+        loadLeaderboardData(); // Replace the mock leaderboard with real data
+    });
+
+    document.getElementById("settingsBtn").addEventListener("click", () => {
+        const groupId = localStorage.getItem("groupId") || "Not Found";
+        document.getElementById("modalGroupId").textContent = groupId;
+
+        const settingsModal = new bootstrap.Modal(document.getElementById("settingsModal"));
+        settingsModal.show();
+    });
+
+    document.getElementById("leaveGroupBtn").addEventListener("click", async () => {
+        const userId = localStorage.getItem("userId");    
+        const groupId = localStorage.getItem("groupId");   
+
+        if (!userId || !groupId) {
+            alert("Missing user or group ID.");
+            return;
+        }
+        const confirmLeave = confirm("Are you sure you want to leave this group?");
+        if (!confirmLeave) return;
+        try {
+            const res = await fetch(`${GROUP_BASE}/delete-member/${userId}/${groupId}`, {
+            method: "DELETE",
+            });
+
+            if (!res.ok) throw new Error("Failed to leave group");
+
+            alert("You have left the group.");
+            window.location.href = "/dashboard.html";  // or wherever you want to redirect after leaving
+
+        } catch (err) {
+            console.error("Leave group error:", err);
+            alert("Failed to leave group.");
+        }
+    });
+
+
 </script>
 </body>
 </html>
