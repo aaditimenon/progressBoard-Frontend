@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Progress Board</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
         .hero {
             padding: 4rem 2rem;
@@ -18,38 +19,75 @@
         .modal input {
             margin-bottom: 1rem;
         }
+        .spinner-border {
+            width: 1rem;
+            height: 1rem;
+            margin-right: 0.5rem;
+        }
+        .alert {
+            margin-top: 1rem;
+            display: none;
+        }
+        .fade-out {
+            animation: fadeOut 5s;
+        }
+        @keyframes fadeOut {
+            0% { opacity: 1; }
+            70% { opacity: 1; }
+            100% { opacity: 0; }
+        }
     </style>
 </head>
 <body class="bg-light text-dark">
 <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
     <div class="container">
         <a class="navbar-brand" href="#">Progress Board</a>
-        <div class="ms-auto">
-            <button class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#loginModal">Login</button>
-            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#signupModal">Sign Up</button>
+        <div class="ms-auto" id="navbarButtons">
+            <!-- Navbar buttons will be dynamically inserted here based on login state -->
         </div>
     </div>
 </nav>
 
 <div class="container">
-    <div class="hero">
-        <h1 class="display-4">Stay on Track with Progress Board</h1>
-        <p class="lead">Easily manage your tasks, monitor daily progress, and collaborate within groups. Designed for productivity and clarity.</p>
-        <a href="#" class="btn btn-success btn-lg mt-3">Get Started</a>
-    </div>
+    <div id="alertContainer"></div>
+    
+    <div id="homeContent">
+        <div class="hero">
+            <h1 class="display-4">Stay on Track with Progress Board</h1>
+            <p class="lead">Easily manage your tasks, monitor daily progress, and collaborate within groups. Designed for productivity and clarity.</p>
+            <button id="getStartedBtn" class="btn btn-success btn-lg mt-3">Get Started</button>
+        </div>
 
-    <div class="row benefits text-center">
-        <div class="col-md-4">
-            <h3>📅 Daily Task Tracking</h3>
-            <p>Visualize your daily progress with ease. Add, manage, and track tasks assigned to you every day.</p>
+        <div class="row benefits text-center">
+            <div class="col-md-4">
+                <h3>📅 Daily Task Tracking</h3>
+                <p>Visualize your daily progress with ease. Add, manage, and track tasks assigned to you every day.</p>
+            </div>
+            <div class="col-md-4">
+                <h3>👥 Group Collaboration</h3>
+                <p>Create or join groups, assign tasks, and collaborate with others in a focused, productive environment.</p>
+            </div>
+            <div class="col-md-4">
+                <h3>📈 Clear Progress Overview</h3>
+                <p>Measure how far you've come with a simple and clear progress report that motivates you to achieve more.</p>
+            </div>
         </div>
-        <div class="col-md-4">
-            <h3>👥 Group Collaboration</h3>
-            <p>Create or join groups, assign tasks, and collaborate with others in a focused, productive environment.</p>
-        </div>
-        <div class="col-md-4">
-            <h3>📈 Clear Progress Overview</h3>
-            <p>Measure how far you've come with a simple and clear progress report that motivates you to achieve more.</p>
+    </div>
+    
+    <div id="userDashboardPreview" class="mt-4" style="display: none;">
+        <div class="card">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">Your Dashboard</h4>
+                <button class="btn btn-light btn-sm" onclick="window.location.href='dashboard.html'">Go to Dashboard</button>
+            </div>
+            <div class="card-body">
+                <p>You're already logged in! Access your groups and tasks from your personal dashboard.</p>
+                <div class="d-grid gap-2">
+                    <button class="btn btn-outline-primary" onclick="window.location.href='dashboard.html'">
+                        <i class="bi bi-grid"></i> View Dashboard
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -62,18 +100,17 @@
         <h5 class="modal-title" id="loginModalLabel">Login</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-        <div class="modal-body">
+      <div class="modal-body">
         <form id="loginForm" onsubmit="event.preventDefault(); handleLogin();">
             <input type="email" id="loginEmail" class="form-control" placeholder="Email" required>
             <input type="password" id="loginPassword" class="form-control" placeholder="Password" required>
             <div class="modal-footer p-0 pt-3">
-            <button type="submit" class="btn btn-primary w-100">Login</button>
+                <button id="loginSubmitBtn" type="submit" class="btn btn-primary w-100">
+                    <span id="loginSpinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                    Login
+                </button>
             </div>
         </form>
-        </div>
-
-      <div class="modal-footer">
-        <button type="button" class="btn btn-primary" onclick="handleLogin()">Login</button>
       </div>
     </div>
   </div>
@@ -88,12 +125,17 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <input type="text" id="signupUsername" class="form-control" placeholder="Username" required>
-        <input type="email" id="signupEmail" class="form-control" placeholder="Email" required>
-        <input type="password" id="signupPassword" class="form-control" placeholder="Password" required>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-success" onclick="handleSignup()">Sign Up</button>
+        <form id="signupForm" onsubmit="event.preventDefault(); handleSignup();">
+            <input type="text" id="signupUsername" class="form-control" placeholder="Username" required>
+            <input type="email" id="signupEmail" class="form-control" placeholder="Email" required>
+            <input type="password" id="signupPassword" class="form-control" placeholder="Password" required>
+            <div class="modal-footer p-0 pt-3">
+                <button id="signupSubmitBtn" type="submit" class="btn btn-success w-100">
+                    <span id="signupSpinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                    Sign Up
+                </button>
+            </div>
+        </form>
       </div>
     </div>
   </div>
@@ -105,51 +147,242 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    const BASE_URL = 'https://progress-board-1409-20917d01.koyeb.app';
-
+    //const BASE_URL = 'https://progress-board-1409-20917d01.koyeb.app';
+    const BASE_URL = 'http://localhost:8081';
+    
+    // Global variables to track request states
+    let isLoggingIn = false;
+    let isSigningUp = false;
+    
+    // Show alert messages
+    function showAlert(message, type = 'danger') {
+        const alertContainer = document.getElementById('alertContainer');
+        const alertId = 'alert-' + Date.now();
+        
+        const alertDiv = document.createElement('div');
+        alertDiv.id = alertId;
+        alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+        alertDiv.role = 'alert';
+        alertDiv.style.display = 'block';
+        
+        alertDiv.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        `;
+        
+        alertContainer.appendChild(alertDiv);
+        
+        // Auto dismiss after 5 seconds
+        setTimeout(() => {
+            const alert = document.getElementById(alertId);
+            if (alert) {
+                alert.classList.add('fade-out');
+                setTimeout(() => {
+                    if (alert && alert.parentNode) {
+                        alert.parentNode.removeChild(alert);
+                    }
+                }, 500);
+            }
+        }, 5000);
+        
+        return alertId;
+    }
+    
+    // Toggle button loading state
+    function toggleButtonLoading(buttonId, spinnerID, isLoading) {
+        const button = document.getElementById(buttonId);
+        const spinner = document.getElementById(spinnerID);
+        
+        if (button && spinner) {
+            button.disabled = isLoading;
+            
+            if (isLoading) {
+                spinner.classList.remove('d-none');
+            } else {
+                spinner.classList.add('d-none');
+            }
+        }
+    }
+    
     async function handleLogin() {
+        if (isLoggingIn) return; // Prevent multiple submissions
+        
+        isLoggingIn = true;
+        toggleButtonLoading('loginSubmitBtn', 'loginSpinner', true);
+        
         const email = document.getElementById('loginEmail').value;
         const password = document.getElementById('loginPassword').value;
 
-        // First, validate the user credentials
-        const res = await fetch(`${BASE_URL}/Auth/validate?email=${encodeURIComponent(email)}&inPass=${encodeURIComponent(password)}`);
-        const result = await res.text();
+        try {
+            // First, validate the user credentials
+            const res = await fetch(`${BASE_URL}/Auth/validate?email=${encodeURIComponent(email)}&inPass=${encodeURIComponent(password)}`);
+            const result = await res.text();
 
-        if (res.ok && result === 'true') {
-            // If credentials are valid, fetch the ObjectId of the user
-            const userIdRes = await fetch(`${BASE_URL}/Auth/obId?email=${encodeURIComponent(email)}&inPass=${encodeURIComponent(password)}`);
-            
-            if (userIdRes.ok) {
-                const userId = await userIdRes.text(); // The response will contain the ObjectId of the user
-                localStorage.setItem('userId', userId.toString());
-                window.location.href = '/dashboard.html'; // Redirect to the dashboard
+            if (res.ok && result === 'true') {
+                // If credentials are valid, fetch the ObjectId of the user
+                const userIdRes = await fetch(`${BASE_URL}/Auth/obId?email=${encodeURIComponent(email)}&inPass=${encodeURIComponent(password)}`);
+                
+                if (userIdRes.ok) {
+                    const userId = await userIdRes.text(); // The response will contain the ObjectId of the user
+                    localStorage.setItem('userId', userId.toString());
+                    
+                    // Close the modal
+                    const loginModal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
+                    if (loginModal) loginModal.hide();
+                    
+                    // Show success message
+                    showAlert('Login successful! Redirecting to dashboard...', 'success');
+                    
+                    // Update UI immediately to reflect logged-in state
+                    updateUIForLoggedInUser();
+                    
+                    // Redirect after a short delay
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 1500);
+                } else {
+                    showAlert('Failed to retrieve user data.');
+                }
             } else {
-                alert('Failed to retrieve user data.');
+                showAlert('Invalid credentials: incorrect password or account does not exist.');
             }
-        } else {
-            alert('Invalid credentials: incorrect password or account does not exist.');
+        } catch (error) {
+            console.error('Error during login:', error);
+            showAlert('Network error occurred during login.');
+        } finally {
+            isLoggingIn = false;
+            toggleButtonLoading('loginSubmitBtn', 'loginSpinner', false);
         }
     }
+    
     async function handleSignup() {
+        if (isSigningUp) return; // Prevent multiple submissions
+        
+        isSigningUp = true;
+        toggleButtonLoading('signupSubmitBtn', 'signupSpinner', true);
+        
         const username = document.getElementById('signupUsername').value;
         const email = document.getElementById('signupEmail').value;
         const password = document.getElementById('signupPassword').value;
 
-        const res = await fetch(`${BASE_URL}/user`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, email, password })
-        });
+        try {
+            const res = await fetch(`${BASE_URL}/user`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, email, password })
+            });
 
-        if (res.ok) {
-            alert('Signup successful! Redirecting to dashboard...');
-            const userId = await userIdRes.text(); // The response will contain the ObjectId of the user
-            localStorage.setItem('userId', userId.toString());
-            window.location.href = '/dashboard.html';
-        } else {
-            alert('Signup failed. Try again.');
+            if (res.ok) {
+                // If signup successful, now login the user automatically
+                const loginRes = await fetch(`${BASE_URL}/Auth/obId?email=${encodeURIComponent(email)}&inPass=${encodeURIComponent(password)}`);
+                
+                if (loginRes.ok) {
+                    const userId = await loginRes.text();
+                    localStorage.setItem('userId', userId.toString());
+                    
+                    // Close the modal
+                    const signupModal = bootstrap.Modal.getInstance(document.getElementById('signupModal'));
+                    if (signupModal) signupModal.hide();
+                    
+                    // Show success message
+                    showAlert('Signup successful! Redirecting to dashboard...', 'success');
+                    
+                    // Update UI immediately to reflect logged-in state
+                    updateUIForLoggedInUser();
+                    
+                    // Redirect after a short delay
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 1500);
+                } else {
+                    showAlert('Signup successful but login failed. Please try logging in manually.');
+                }
+            } else {
+                const errorText = await res.text();
+                showAlert(`Signup failed: ${errorText || 'Please try again.'}`);
+            }
+        } catch (error) {
+            console.error('Error during signup:', error);
+            showAlert('Network error occurred during signup.');
+        } finally {
+            isSigningUp = false;
+            toggleButtonLoading('signupSubmitBtn', 'signupSpinner', false);
         }
     }
+    
+    // Update navbar based on login state
+    function updateNavbar() {
+        const navbarButtons = document.getElementById('navbarButtons');
+        const userId = localStorage.getItem('userId');
+        
+        if (userId) {
+            // User is logged in
+            navbarButtons.innerHTML = `
+                <button class="btn btn-outline-primary me-2" onclick="window.location.href='dashboard.html'">Dashboard</button>
+                <button class="btn btn-danger" onclick="handleLogout()">Logout</button>
+            `;
+        } else {
+            // User is not logged in
+            navbarButtons.innerHTML = `
+                <button class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#loginModal">Login</button>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#signupModal">Sign Up</button>
+            `;
+        }
+    }
+    
+    // Update UI elements for logged-in user
+    function updateUIForLoggedInUser() {
+        // Update navbar
+        updateNavbar();
+        
+        // Show dashboard preview section
+        document.getElementById('userDashboardPreview').style.display = 'block';
+        
+        // Update "Get Started" button to redirect to dashboard
+        const getStartedBtn = document.getElementById('getStartedBtn');
+        getStartedBtn.textContent = 'Go to Dashboard';
+        getStartedBtn.onclick = function() { window.location.href = 'dashboard.html'; };
+    }
+    
+    // Logout handler
+    function handleLogout() {
+        localStorage.removeItem('userId');
+        showAlert('You have been logged out successfully!', 'success');
+        
+        // Update UI for logged-out state
+        updateNavbar();
+        document.getElementById('userDashboardPreview').style.display = 'none';
+        
+        // Reset "Get Started" button
+        const getStartedBtn = document.getElementById('getStartedBtn');
+        getStartedBtn.textContent = 'Get Started';
+        getStartedBtn.onclick = function() {
+            const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+            loginModal.show();
+        };
+    }
+    
+    // Initialize the page
+    window.onload = function() {
+        // Check if user is logged in
+        const userId = localStorage.getItem('userId');
+        
+        // Set up "Get Started" button behavior
+        const getStartedBtn = document.getElementById('getStartedBtn');
+        if (userId) {
+            // User is logged in - update UI accordingly
+            updateUIForLoggedInUser();
+        } else {
+            // User is not logged in - setup login modal trigger
+            getStartedBtn.onclick = function() {
+                const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+                loginModal.show();
+            };
+        }
+        
+        // Always update navbar
+        updateNavbar();
+    };
 </script>
 </body>
 </html>

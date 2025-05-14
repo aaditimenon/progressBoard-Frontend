@@ -4,23 +4,22 @@
     <meta charset="UTF-8">
     <title>Dashboard - Progress Board</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
         html, body {
-    height: 100%;
-    margin: 0;
+            height: 100%;
+            margin: 0;
         }
         body {
             display: flex;
             flex-direction: column;
+            background-color: #1e1e1e; /* Dark background */
+            color: #dcdcdc; /* Light text */
         }
         .container {
             flex: 1 0 auto;
             padding-top: 1rem;
             padding-bottom: 1rem;
-        }
-        body {
-            background-color: #1e1e1e; /* Dark background */
-            color: #dcdcdc; /* Light text */
         }
         .navbar {
             background-color: #333 !important; /* Darker navbar */
@@ -63,6 +62,7 @@
             transition: transform 0.3s;
             color: #fff; /* Light text in group box */
             border: 1px solid #555;
+            cursor: pointer;
         }
         .group-box:hover {
             transform: scale(1.05);
@@ -75,6 +75,7 @@
             justify-content: space-around;
             padding: 15px;
             border-radius: 8px;
+            min-height: 150px;
         }
         .modal-content {
             background-color: #333; /* Dark modal background */
@@ -91,6 +92,7 @@
             background-color: #444;
             color: #fff;
             border: 1px solid #666;
+            margin-bottom: 15px;
         }
         .modal-body input.form-control::placeholder {
             color: #999;
@@ -125,16 +127,43 @@
         .copy-btn {
             margin-top: 10px;
         }
+        .spinner-border {
+            width: 1rem;
+            height: 1rem;
+            margin-right: 0.5rem;
+        }
+        .btn:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+        }
+        #loadingContainer {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 150px;
+        }
+        .alert {
+            margin-top: 1rem;
+            display: none;
+        }
+        .fade-out {
+            animation: fadeOut 5s;
+        }
+        @keyframes fadeOut {
+            0% { opacity: 1; }
+            70% { opacity: 1; }
+            100% { opacity: 0; }
+        }
     </style>
 </head>
 <body class="bg-dark text-light">
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom">
     <div class="container">
-        <a class="navbar-brand" href="#">Progress Board</a>
+        <a class="navbar-brand" href="index.html">Progress Board</a>
         <div class="ms-auto">
-            <button class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#joinGroupModal">Join Group</button>
-            <button class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#createGroupModal">Create Group</button>
-            <button class="btn btn-danger" onclick="handleLogout()">Logout</button>
+            <button id="joinGroupBtn" class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#joinGroupModal">Join Group</button>
+            <button id="createGroupBtn" class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#createGroupModal">Create Group</button>
+            <button id="logoutBtn" class="btn btn-danger" onclick="handleLogout()">Logout</button>
         </div>
     </div>
 </nav>
@@ -142,9 +171,17 @@
 <div class="container py-4">
     <h1>Welcome to Your Dashboard</h1>
     <p>Manage your groups and tasks here.</p>
-
+    
+    <div id="alertContainer"></div>
+    
+    <h3 class="mt-4">Your Groups</h3>
     <div class="group-container" id="groupContainer">
+        <div id="loadingContainer">
+            <div class="spinner-border text-light" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
         </div>
+    </div>
 </div>
 
 <div class="modal fade" id="joinGroupModal" tabindex="-1" aria-labelledby="joinGroupModalLabel" aria-hidden="true">
@@ -159,7 +196,10 @@
                     <input type="text" id="joinGroupId" class="form-control" placeholder="Group ID" required>
                     <input type="password" id="joinGroupPassword" class="form-control" placeholder="Group Password" required>
                     <div class="modal-footer p-0 pt-3">
-                        <button type="submit" class="btn btn-primary w-100">Join Group</button>
+                        <button id="joinSubmitBtn" type="submit" class="btn btn-primary w-100">
+                            <span id="joinSpinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                            Join Group
+                        </button>
                     </div>
                 </form>
             </div>
@@ -179,7 +219,10 @@
                     <input type="text" id="createGroupName" class="form-control" placeholder="Group Name" required>
                     <input type="password" id="createGroupPassword" class="form-control" placeholder="Group Password" required>
                     <div class="modal-footer p-0 pt-3">
-                        <button type="submit" class="btn btn-success w-100">Create Group</button>
+                        <button id="createSubmitBtn" type="submit" class="btn btn-success w-100">
+                            <span id="createSpinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                            Create Group
+                        </button>
                     </div>
                 </form>
             </div>
@@ -187,7 +230,7 @@
     </div>
 </div>
 
-<!-- New Modal for displaying Group ID after creation -->
+<!-- Modal for displaying Group ID after creation -->
 <div class="modal fade" id="groupIdModal" tabindex="-1" aria-labelledby="groupIdModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -196,9 +239,9 @@
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body text-center">
-                <p>This is your Unique Group Id, which you need to share with your friend along with the Group Password you set</p>
+                <p>This is your Unique Group ID, which you need to share with your friends along with the Group Password you set:</p>
                 <div id="groupIdDisplay"></div>
-                <button class="btn btn-outline-light copy-btn" onclick="copyGroupId()">
+                <button id="copyIdBtn" class="btn btn-outline-light copy-btn" onclick="copyGroupId()">
                     <i class="bi bi-clipboard"></i> Copy ID
                 </button>
             </div>
@@ -215,44 +258,143 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    const BASE_URL = 'https://progress-board-1409-20917d01.koyeb.app';
-
+    //const BASE_URL = 'https://progress-board-1409-20917d01.koyeb.app';
+    const BASE_URL = 'http://localhost:8081';
+    
+    // Global variables to track request states
+    let isJoiningGroup = false;
+    let isCreatingGroup = false;
+    let isLoggingOut = false;
+    let isFetchingGroups = false;
+    
+    // Show alert messages
+    function showAlert(message, type = 'danger') {
+        const alertContainer = document.getElementById('alertContainer');
+        const alertId = 'alert-' + Date.now();
+        
+        const alertDiv = document.createElement('div');
+        alertDiv.id = alertId;
+        alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+        alertDiv.role = 'alert';
+        alertDiv.style.display = 'block';
+        
+        alertDiv.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        `;
+        
+        alertContainer.appendChild(alertDiv);
+        
+        // Auto dismiss after 5 seconds
+        setTimeout(() => {
+            const alert = document.getElementById(alertId);
+            if (alert) {
+                alert.classList.add('fade-out');
+                setTimeout(() => {
+                    if (alert && alert.parentNode) {
+                        alert.parentNode.removeChild(alert);
+                    }
+                }, 500);
+            }
+        }, 5000);
+        
+        return alertId;
+    }
+    
+    // Toggle button loading state
+    function toggleButtonLoading(buttonId, spinnerID, isLoading) {
+        const button = document.getElementById(buttonId);
+        const spinner = document.getElementById(spinnerID);
+        
+        if (button && spinner) {
+            button.disabled = isLoading;
+            
+            if (isLoading) {
+                spinner.classList.remove('d-none');
+            } else {
+                spinner.classList.add('d-none');
+            }
+        }
+    }
+    
+    // Join group handler with loading state
     async function handleJoinGroup() {
+        if (isJoiningGroup) return; // Prevent multiple submissions
+        
+        isJoiningGroup = true;
+        toggleButtonLoading('joinSubmitBtn', 'joinSpinner', true);
+        
         const groupId = document.getElementById('joinGroupId').value.trim();
         const groupPassword = document.getElementById('joinGroupPassword').value.trim();
         const userId = localStorage.getItem('userId');
-
+        
         if (!userId) {
-            alert('User not logged in. Please log in first.');
+            showAlert('User not logged in. Please log in first.');
+            isJoiningGroup = false;
+            toggleButtonLoading('joinSubmitBtn', 'joinSpinner', false);
             return;
         }
-
+        
         const url = `${BASE_URL}/group/add-member/${userId}/${groupId}?inPsas=${encodeURIComponent(groupPassword)}`;
-        console.log(url);
+        
         try {
             const res = await fetch(url, {
                 method: 'PUT'
             });
 
             if (res.ok) {
-                alert('Successfully joined the group!');
-                window.location.reload();
+                // Close the modal
+                const joinModal = bootstrap.Modal.getInstance(document.getElementById('joinGroupModal'));
+                if (joinModal) joinModal.hide();
+                
+                // Show success message
+                showAlert('Successfully joined the group!', 'success');
+                
+                // Clear the form
+                document.getElementById('joinGroupForm').reset();
+                
+                // Refresh groups list
+                await fetchUserGroups();
             } else {
-                alert('Failed to join group. Please check your credentials.');
+                const errorText = await res.text();
+                showAlert(`Failed to join group: ${errorText || 'Please check your credentials.'}`);
             }
         } catch (error) {
             console.error('Error joining group:', error);
-            alert('An error occurred while trying to join the group.');
+            showAlert('Network error occurred while trying to join the group.');
+        } finally {
+            isJoiningGroup = false;
+            toggleButtonLoading('joinSubmitBtn', 'joinSpinner', false);
         }
     }
-
+    
+    // Create group handler with loading state
     async function handleCreateGroup() {
-        const groupName = document.getElementById('createGroupName').value;
-        const groupPassword = document.getElementById('createGroupPassword').value;
+        if (isCreatingGroup) return; // Prevent multiple submissions
+        
+        isCreatingGroup = true;
+        toggleButtonLoading('createSubmitBtn', 'createSpinner', true);
+        
+        const groupName = document.getElementById('createGroupName').value.trim();
+        const groupPassword = document.getElementById('createGroupPassword').value.trim();
         const emptyList = [];
+
+        if (!groupName || !groupPassword) {
+            showAlert('Please enter both group name and password.');
+            isCreatingGroup = false;
+            toggleButtonLoading('createSubmitBtn', 'createSpinner', false);
+            return;
+        }
+
+        const userId = localStorage.getItem('userId');
+        if (!userId) {
+            showAlert('User not logged in. Please log in first.');
+            isCreatingGroup = false;
+            toggleButtonLoading('createSubmitBtn', 'createSpinner', false);
+            return;
+        }
         
         try {
-            const userId = localStorage.getItem('userId');
             const res = await fetch(`${BASE_URL}/group/create-group/${userId}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -266,53 +408,79 @@
             if (!res.ok) {
                 const errorText = await res.text();
                 console.error("Group creation failed:", errorText);
-                alert('Failed to create group: ' + errorText);
-            } else {
-                const groupId = await res.text(); 
-                console.log("Group created! ID:", groupId);
-                
-                // Close the create group modal
-                const createGroupModal = bootstrap.Modal.getInstance(document.getElementById('createGroupModal'));
-                createGroupModal.hide();
-                
-                // Display the group ID in the new modal
-                document.getElementById('groupIdDisplay').textContent = groupId;
-                
-                // Show the group ID modal
-                const groupIdModal = new bootstrap.Modal(document.getElementById('groupIdModal'));
-                groupIdModal.show();
-                
-                // Refresh the groups list in the background
-                fetchUserGroups();
+                showAlert('Failed to create group: ' + errorText);
+                return;
             }
+
+            const groupId = await res.text();
+            
+            // Clear the form
+            document.getElementById('createGroupForm').reset();
+            
+            // Close the create group modal
+            const createGroupModal = bootstrap.Modal.getInstance(document.getElementById('createGroupModal'));
+            if (createGroupModal) createGroupModal.hide();
+
+            // Display the group ID in the new modal
+            document.getElementById('groupIdDisplay').textContent = groupId;
+
+            // Show the group ID modal
+            const groupIdModal = new bootstrap.Modal(document.getElementById('groupIdModal'));
+            groupIdModal.show();
+
+            // Refresh the groups list
+            await fetchUserGroups();
+
         } catch (error) {
             console.error('Error creating group:', error);
-            alert('An error occurred while trying to create the group.');
+            showAlert('Network error occurred while trying to create the group.');
+        } finally {
+            isCreatingGroup = false;
+            toggleButtonLoading('createSubmitBtn', 'createSpinner', false);
         }
     }
     
+    // Copy group ID function
     function copyGroupId() {
         const groupId = document.getElementById('groupIdDisplay').textContent;
+        const copyBtn = document.getElementById('copyIdBtn');
+        
         navigator.clipboard.writeText(groupId)
             .then(() => {
-                const copyBtn = document.querySelector('.copy-btn');
+                const originalContent = copyBtn.innerHTML;
                 copyBtn.innerHTML = '<i class="bi bi-check"></i> Copied!';
+                
                 setTimeout(() => {
-                    copyBtn.innerHTML = '<i class="bi bi-clipboard"></i> Copy ID';
+                    copyBtn.innerHTML = originalContent;
                 }, 2000);
             })
             .catch(err => {
                 console.error('Failed to copy: ', err);
-                alert('Failed to copy Group ID');
+                showAlert('Failed to copy Group ID');
             });
     }
 
+    // Logout handler with loading state
     function handleLogout() {
-        // Implement logout logic here (e.g., clear session or token)
-        localStorage.removeItem('userId');
-        alert('You have logged out!');
-        window.location.href = '/';  // Redirect to homepage or login page
+        if (isLoggingOut) return; // Prevent multiple clicks
+        
+        isLoggingOut = true;
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) logoutBtn.disabled = true;
+        
+        // Add a small delay to show loading state
+        setTimeout(() => {
+            localStorage.removeItem('userId');
+            showAlert('You have logged out successfully!', 'success');
+            
+            // Redirect after a short delay
+            setTimeout(() => {
+                window.location.href = '/';  // Redirect to homepage or login page
+            }, 1000);
+        }, 500);
     }
+    
+    // Convert MongoDB ObjectId to string
     function objectIdToString(objectId) {
         // If it's already a string, return it
         if (typeof objectId === 'string') {
@@ -348,11 +516,27 @@
         }
     }
 
+    // Fetch user groups with loading state
     async function fetchUserGroups() {
+        if (isFetchingGroups) return; // Prevent multiple fetches
+        
+        isFetchingGroups = true;
+        
+        // Show loading spinner
+        const groupContainer = document.getElementById('groupContainer');
+        groupContainer.innerHTML = `
+            <div id="loadingContainer">
+                <div class="spinner-border text-light" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+        `;
+        
         // Retrieve the user ID from localStorage
         const userId = localStorage.getItem('userId');
         if (!userId) {
-            alert('User is not logged in!');
+            groupContainer.innerHTML = '<p class="text-center">User is not logged in! Please login first.</p>';
+            isFetchingGroups = false;
             return;
         }
 
@@ -369,28 +553,28 @@
 
             // Store the fetched group data in localStorage (all group details)
             groups.forEach(group => {
-                localStorage.setItem(group.id.timestamp, JSON.stringify(group)); // Storing full group data
+                if (group.id && group.id.timestamp) {
+                    localStorage.setItem(group.id.timestamp, JSON.stringify(group));
+                }
             });
 
-            // Get the container where groups will be displayed
-            const groupContainer = document.getElementById('groupContainer');
-            groupContainer.innerHTML = ''; // Clear any previous content
+            groupContainer.innerHTML = ''; // Clear loading spinner
 
             if (groups.length === 0) {
-                groupContainer.innerHTML = '<p>No groups found. Create one or join an existing group!</p>';
+                groupContainer.innerHTML = '<p class="text-center py-4">No groups found. Create one or join an existing group!</p>';
             } else {
-                // Loop through each group and create a group box, displaying only the name
+                // Loop through each group and create a group box
                 groups.forEach(group => {
                     const groupBox = document.createElement('div');
                     groupBox.classList.add('group-box');
                     groupBox.innerHTML = `
-                        <h4>${group.name}</h4> <p>${group.description || 'No description available.'}</p>
+                        <h4>${group.name}</h4>
+                        <p>${group.description || 'No description available.'}</p>
                     `;
 
-                    // Add event listener to the group box to allow navigating to the group's details
-                   console.log(group);
+                    // Add event listener to navigate to group details
                     groupBox.addEventListener('click', () => {
-                        const groupId = group.obId;
+                        const groupId = group.obId || objectIdToString(group.id);
                         window.location.href = `/group.html?id=${groupId}`;
                     });
 
@@ -399,12 +583,47 @@
             }
         } catch (error) {
             console.error('Error fetching user groups:', error);
-            alert('An error occurred while fetching groups.');
+            groupContainer.innerHTML = '<p class="text-center py-4 text-danger">Failed to load groups. Please try again later.</p>';
+            showAlert('An error occurred while fetching groups.');
+        } finally {
+            isFetchingGroups = false;
         }
     }
 
-    // Call the function to fetch and display groups when the page loads
+    // Check authentication status
+    function checkAuth() {
+        const userId = localStorage.getItem('userId');
+        if (!userId) {
+            showAlert('You are not logged in. Please login first.', 'warning');
+            setTimeout(() => {
+                window.location.href = '/';
+            }, 2000);
+        }
+    }
+
+    // Initialize modals
+    function initModals() {
+        const joinGroupModal = document.getElementById('joinGroupModal');
+        if (joinGroupModal) {
+            joinGroupModal.addEventListener('hidden.bs.modal', function () {
+                document.getElementById('joinGroupForm').reset();
+                toggleButtonLoading('joinSubmitBtn', 'joinSpinner', false);
+            });
+        }
+        
+        const createGroupModal = document.getElementById('createGroupModal');
+        if (createGroupModal) {
+            createGroupModal.addEventListener('hidden.bs.modal', function () {
+                document.getElementById('createGroupForm').reset();
+                toggleButtonLoading('createSubmitBtn', 'createSpinner', false);
+            });
+        }
+    }
+
+    // Initialize the page
     window.onload = async function() {
+        checkAuth();
+        initModals();
         await fetchUserGroups();
     };
 </script>
