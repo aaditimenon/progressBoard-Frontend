@@ -169,7 +169,7 @@
 </nav>
 
 <div class="container py-4">
-    <h1>Welcome to Your Dashboard</h1>
+    <h1 id="dashboard-heading"></h1>
     <p>Manage your groups and tasks here.</p>
     
     <div id="alertContainer"></div>
@@ -266,7 +266,6 @@
     let isCreatingGroup = false;
     let isLoggingOut = false;
     let isFetchingGroups = false;
-    
     // Show alert messages
     function showAlert(message, type = 'danger') {
         const alertContainer = document.getElementById('alertContainer');
@@ -620,8 +619,21 @@
         }
     }
 
+    async function getUserName() {
+        const userId = localStorage.getItem('userId');
+        
+        const response = await fetch(`${BASE_URL}/user/get-userid/${userId}`);
+        const data = await response.text(); // Parse JSON
+
+        const username = data; // Extract the actual username
+        document.getElementById("dashboard-heading").textContent = `Welcome to Your Dashboard, ${username}`;
+        localStorage.setItem('userName', username);
+        console.log(username);
+    }
+
     // Initialize the page
     window.onload = async function() {
+        getUserName();
         checkAuth();
         initModals();
         await fetchUserGroups();

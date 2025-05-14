@@ -137,6 +137,31 @@
             gap: 10px;
             margin-bottom: 15px;
         }
+        .spinner-border {
+            width: 1rem;
+            height: 1rem;
+            border-width: 0.15em;
+        }
+        .btn-loading {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            border-radius: 8px;
+        }
+        .position-relative {
+            position: relative;
+        }
     </style>
 </head>
 <body>
@@ -173,18 +198,29 @@
 <div class="container py-4">
     <h2 class="mb-4 text-light">Daily Leaderboard</h2>
     <div class="main-content">
-        <div class="leaderboard">
+        <div class="leaderboard position-relative">
             <h4>Leaderboard</h4>
             <ul id="leaderboardList" class="list-group mb-3"></ul>
+            <div id="leaderboardLoading" class="loading-overlay d-none">
+                <div class="spinner-border text-light" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
         </div>
-        <div class="task-sidebar">
+        <div class="task-sidebar position-relative">
             <h5>Your Tasks</h5>
             <div id="currentDayInfo" class="mb-3"></div>
             <div id="taskList"></div>
             
             <div class="action-buttons">
-                <button id="addDayBtn" class="btn btn-primary">Add Day</button>
-                <button id="addTaskBtn" class="btn btn-success" disabled>Add Task</button>
+                <button id="addDayBtn" class="btn btn-primary">
+                    <span class="button-text">Add Day</span>
+                    <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                </button>
+                <button id="addTaskBtn" class="btn btn-success" disabled>
+                    <span class="button-text">Add Task</span>
+                    <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                </button>
                 <button id="settingsBtn" class="btn btn-outline-secondary btn-sm ms-2">
                     <i class="bi bi-gear"></i> Settings
                 </button>
@@ -193,9 +229,18 @@
             <form id="taskForm" class="d-none">
                 <div class="input-group mb-3">
                     <input type="text" id="taskInput" class="form-control" placeholder="Enter task title" required />
-                    <button type="submit" class="btn btn-success">Save</button>
+                    <button type="submit" class="btn btn-success">
+                        <span class="button-text">Save</span>
+                        <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                    </button>
                 </div>
             </form>
+            
+            <div id="tasksLoading" class="loading-overlay d-none">
+                <div class="spinner-border text-light" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -212,6 +257,16 @@
     
     // Track current day
     let currentDay = null;
+    
+    // Request throttling flags
+    const requestFlags = {
+        loadingTasks: false,
+        addingDay: false,
+        addingTask: false,
+        updatingTask: false,
+        loadingLeaderboard: false,
+        leavingGroup: false
+    };
 
     function handleLogout() {
         // Only clear auth-related data, keep task data
@@ -222,6 +277,35 @@
             localStorage.setItem('currentDay', currentDayData);
         }
         window.location.href = '/';
+    }
+    
+    // Helper function to show loading state on a button
+    function setButtonLoading(buttonId, isLoading) {
+        const button = document.getElementById(buttonId);
+        const buttonText = button.querySelector('.button-text');
+        const spinner = button.querySelector('.spinner-border');
+        
+        if (isLoading) {
+            button.disabled = true;
+            button.classList.add('btn-loading');
+            buttonText.classList.add('d-none');
+            spinner.classList.remove('d-none');
+        } else {
+            button.disabled = false;
+            button.classList.remove('btn-loading');
+            buttonText.classList.remove('d-none');
+            spinner.classList.add('d-none');
+        }
+    }
+    
+    // Helper function to show/hide section loading overlay
+    function setSectionLoading(sectionId, isLoading) {
+        const loadingOverlay = document.getElementById(`${sectionId}Loading`);
+        if (isLoading) {
+            loadingOverlay.classList.remove('d-none');
+        } else {
+            loadingOverlay.classList.add('d-none');
+        }
     }
 
     async function loadGroups() {
@@ -239,9 +323,42 @@
             });
         }
     }
+    
+    async function checkIfTodayExists() {
+        try {
+            const convertedUserId = convertToObjectId(userId);
+            const response = await fetch(`${TASK_BASE}/is-today-present/${convertedUserId}`);
+            
+            if (!response.ok) {
+                throw new Error('Failed to check if today exists: ' + response.status);
+            }
+            
+            const data = await response.json();
+            
+            // If today exists, hide the Add Day button
+            if (data === true) {
+                document.getElementById('addDayBtn').classList.add('d-none');
+            } else {
+                document.getElementById('addDayBtn').classList.remove('d-none');
+            }
+            
+            return data;
+        } catch (error) {
+            console.error("Error checking if today exists:", error);
+            // Keep the button visible in case of error
+            document.getElementById('addDayBtn').classList.remove('d-none');
+            return false;
+        }
+    }
 
     async function loadTasks() {
+        // Check if we're already loading tasks to prevent multiple calls
+        if (requestFlags.loadingTasks) return;
+        
         try {
+            requestFlags.loadingTasks = true;
+            setSectionLoading('tasks', true);
+            
             // First check if we have tasks in local storage
             const storedDay = localStorage.getItem('currentDay');
             
@@ -250,6 +367,12 @@
                 renderCurrentDay();
                 renderTasks(currentDay.tasks || []);
                 document.getElementById('addTaskBtn').disabled = false;
+                
+                // Still check if today exists to update the Add Day button visibility
+                await checkIfTodayExists();
+                
+                setSectionLoading('tasks', false);
+                requestFlags.loadingTasks = false;
                 return; // Exit early if we have data in local storage
             }
             
@@ -257,6 +380,9 @@
             const convertedUserId = convertToObjectId(userId);
             const res = await fetch(`${TASK_BASE}/get-user-tasks/${convertedUserId}`);
             const data = await res.json();
+            
+            // Check if today exists to update the Add Day button visibility
+            await checkIfTodayExists();
             
             // Check if there are any days with tasks
             if (data && data.length > 0) {
@@ -288,6 +414,9 @@
             console.error("Error loading tasks:", error);
             document.getElementById('currentDayInfo').innerHTML = 
                 '<div class="alert alert-danger">Failed to load tasks. Please try again.</div>';
+        } finally {
+            setSectionLoading('tasks', false);
+            requestFlags.loadingTasks = false;
         }
     }
 
@@ -337,19 +466,22 @@
     }
 
     async function updateTaskStatus(task) {
-        if (!currentDay) return;
+        if (!currentDay || requestFlags.updatingTask) return;
         
-        // Find and update the task in current day
-        const taskIndex = currentDay.tasks.findIndex(t => t.title === task.title);
-        if (taskIndex !== -1) {
-            currentDay.tasks[taskIndex].completed = !currentDay.tasks[taskIndex].completed;
+        try {
+            requestFlags.updatingTask = true;
+            setSectionLoading('tasks', true);
             
-            // Calculate new progress
-            const completedTasks = currentDay.tasks.filter(t => t.completed).length;
-            const totalTasks = currentDay.tasks.length;
-            currentDay.progress = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
-            
-            try {
+            // Find and update the task in current day
+            const taskIndex = currentDay.tasks.findIndex(t => t.title === task.title);
+            if (taskIndex !== -1) {
+                currentDay.tasks[taskIndex].completed = !currentDay.tasks[taskIndex].completed;
+                
+                // Calculate new progress
+                const completedTasks = currentDay.tasks.filter(t => t.completed).length;
+                const totalTasks = currentDay.tasks.length;
+                currentDay.progress = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
+                
                 const convertedUserId = convertToObjectId(userId);
                 
                 // Add unique identifier to query to avoid non-unique result error
@@ -373,23 +505,32 @@
                 renderCurrentDay();
                 renderTasks(currentDay.tasks);
                 loadLeaderboardData();
-            } catch (error) {
-                console.error("Failed to update task:", error);
-                alert("Failed to update task status. Please try again.");
             }
+        } catch (error) {
+            console.error("Failed to update task:", error);
+            alert("Failed to update task status. Please try again.");
+        } finally {
+            setSectionLoading('tasks', false);
+            requestFlags.updatingTask = false;
         }
     }
 
     async function addDay() {
-        const today = new Date().toISOString().split('T')[0];
-        const newDay = {
-            userId: userId,
-            dateFor: today,
-            tasks: [],
-            progress: 0
-        };
+        // Check if we're already adding a day to prevent multiple calls
+        if (requestFlags.addingDay) return;
         
         try {
+            requestFlags.addingDay = true;
+            setButtonLoading('addDayBtn', true);
+            
+            const today = new Date().toISOString().split('T')[0];
+            const newDay = {
+                userId: userId,
+                dateFor: today,
+                tasks: [],
+                progress: 0
+            };
+            
             const convertedUserId = convertToObjectId(userId);
             const response = await fetch(`${TASK_BASE}/add-task/${convertedUserId}`, {
                 method: 'POST',
@@ -407,37 +548,53 @@
                 renderCurrentDay();
                 renderTasks([]);
                 document.getElementById('addTaskBtn').disabled = false;
+                
+                // Hide the Add Day button since today's day has been added
+                document.getElementById('addDayBtn').classList.add('d-none');
             } else {
                 alert("Failed to add new day. Please try again.");
             }
         } catch (error) {
             console.error("Error adding day:", error);
             alert("Failed to add new day. Please try again.");
+        } finally {
+            setButtonLoading('addDayBtn', false);
+            requestFlags.addingDay = false;
         }
     }
 
     async function addTask(taskTitle) {
-        if (!currentDay) return;
-        
-        // Create new task
-        const newTask = {
-            title: taskTitle,
-            completed: false
-        };
-        
-        // Add task to current day
-        if (!currentDay.tasks) {
-            currentDay.tasks = [];
-        }
-        
-        currentDay.tasks.push(newTask);
-        
-        // Update progress
-        const completedTasks = currentDay.tasks.filter(t => t.completed).length;
-        const totalTasks = currentDay.tasks.length;
-        currentDay.progress = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
+        if (!currentDay || requestFlags.addingTask) return;
         
         try {
+            requestFlags.addingTask = true;
+            const taskFormSubmitBtn = document.querySelector('#taskForm button[type="submit"]');
+            const buttonText = taskFormSubmitBtn.querySelector('.button-text');
+            const spinner = taskFormSubmitBtn.querySelector('.spinner-border');
+            
+            // Show loading state
+            taskFormSubmitBtn.disabled = true;
+            buttonText.classList.add('d-none');
+            spinner.classList.remove('d-none');
+            
+            // Create new task
+            const newTask = {
+                title: taskTitle,
+                completed: false
+            };
+            
+            // Add task to current day
+            if (!currentDay.tasks) {
+                currentDay.tasks = [];
+            }
+            
+            currentDay.tasks.push(newTask);
+            
+            // Update progress
+            const completedTasks = currentDay.tasks.filter(t => t.completed).length;
+            const totalTasks = currentDay.tasks.length;
+            currentDay.progress = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
+            
             const convertedUserId = convertToObjectId(userId);
             const response = await fetch(`${TASK_BASE}/update-user-tasks/${convertedUserId}`, {
                 method: 'PUT',
@@ -454,13 +611,24 @@
                 document.getElementById('addTaskBtn').textContent = 'Add Task';
                 renderCurrentDay();
                 renderTasks(currentDay.tasks);
+                loadLeaderboardData();
             } else {
                 throw new Error('Failed to add task: ' + response.status);
             }
-            loadLeaderboardData();
         } catch (error) {
             console.error("Failed to add task:", error);
             alert("Failed to add task. Please try again.");
+        } finally {
+            // Reset loading state
+            const taskFormSubmitBtn = document.querySelector('#taskForm button[type="submit"]');
+            const buttonText = taskFormSubmitBtn.querySelector('.button-text');
+            const spinner = taskFormSubmitBtn.querySelector('.spinner-border');
+            
+            taskFormSubmitBtn.disabled = false;
+            buttonText.classList.remove('d-none');
+            spinner.classList.add('d-none');
+            
+            requestFlags.addingTask = false;
         }
     }
 
@@ -481,10 +649,10 @@
         const taskForm = document.getElementById('taskForm');
         if (taskForm.classList.contains('d-none')) {
             taskForm.classList.remove('d-none');
-            document.getElementById('addTaskBtn').textContent = 'Cancel';
+            document.getElementById('addTaskBtn').querySelector('.button-text').textContent = 'Cancel';
         } else {
             taskForm.classList.add('d-none');
-            document.getElementById('addTaskBtn').textContent = 'Add Task';
+            document.getElementById('addTaskBtn').querySelector('.button-text').textContent = 'Add Task';
         }
     });
     
@@ -500,7 +668,13 @@
     });
 
     async function loadLeaderboardData() {
+        // Check if we're already loading leaderboard data to prevent multiple calls
+        if (requestFlags.loadingLeaderboard) return;
+        
         try {
+            requestFlags.loadingLeaderboard = true;
+            setSectionLoading('leaderboard', true);
+            
             const urlParams = new URLSearchParams(window.location.search);
             const groupId = urlParams.get("id");
 
@@ -510,8 +684,10 @@
                     '<div class="alert alert-danger">No group ID specified in URL.</div>';
                 return;
             }
+            
             localStorage.setItem("groupId", groupId);
             const response = await fetch(`${GROUP_BASE}/getUsers_and_progress?groupId=${groupId}`);
+            
             if (!response.ok) throw new Error(`API error: ${response.status}`);
 
             const groupUserData = await response.json();
@@ -552,51 +728,11 @@
             console.error("Error loading leaderboard data:", error);
             document.getElementById('leaderboardList').innerHTML = 
                 '<div class="alert alert-danger">Failed to load leaderboard data. Please try again.</div>';
+        } finally {
+            setSectionLoading('leaderboard', false);
+            requestFlags.loadingLeaderboard = false;
         }
     }
-
-    // Helper function to calculate a user's overall progress percentage
-    function calculateUserProgress(userData) {
-        // If the API already provides a calculated progress, use that
-        if (userData.progress !== undefined) {
-            return userData.progress;
-        }
-        
-        // Otherwise calculate from tasks
-        if (!userData.tasks || userData.tasks.length === 0) {
-            return 0;
-        }
-        
-        // Calculate average progress across all days
-        let totalProgress = 0;
-        let dayCount = 0;
-        
-        // If user has days with tasks
-        if (userData.days && userData.days.length > 0) {
-            userData.days.forEach(day => {
-                if (day.tasks && day.tasks.length > 0) {
-                    const completedTasks = day.tasks.filter(task => task.completed).length;
-                    const dayProgress = (completedTasks / day.tasks.length) * 100;
-                    totalProgress += dayProgress;
-                    dayCount++;
-                }
-            });
-            
-            return dayCount > 0 ? totalProgress / dayCount : 0;
-        }
-        
-        // If there's a tasks array directly in userData
-        const completedTasks = userData.tasks.filter(task => task.completed).length;
-        return (completedTasks / userData.tasks.length) * 100;
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-        if (!userId) return handleLogout();
-        
-        loadGroups();
-        loadTasks();
-        loadLeaderboardData(); // Replace the mock leaderboard with real data
-    });
 
     document.getElementById("settingsBtn").addEventListener("click", () => {
         const groupId = localStorage.getItem("groupId") || "Not Found";
@@ -607,6 +743,9 @@
     });
 
     document.getElementById("leaveGroupBtn").addEventListener("click", async () => {
+        // Check if we're already processing leave group request
+        if (requestFlags.leavingGroup) return;
+        
         const userId = localStorage.getItem("userId");    
         const groupId = localStorage.getItem("groupId");   
 
@@ -614,11 +753,20 @@
             alert("Missing user or group ID.");
             return;
         }
+        
         const confirmLeave = confirm("Are you sure you want to leave this group?");
         if (!confirmLeave) return;
+        
         try {
+            requestFlags.leavingGroup = true;
+            document.getElementById("leaveGroupBtn").disabled = true;
+            document.getElementById("leaveGroupBtn").innerHTML = `
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                Leaving...
+            `;
+            
             const res = await fetch(`${GROUP_BASE}/delete-member/${userId}/${groupId}`, {
-            method: "DELETE",
+                method: "DELETE",
             });
 
             if (!res.ok) throw new Error("Failed to leave group");
@@ -629,10 +777,22 @@
         } catch (err) {
             console.error("Leave group error:", err);
             alert("Failed to leave group.");
+            
+            // Reset button state
+            document.getElementById("leaveGroupBtn").disabled = false;
+            document.getElementById("leaveGroupBtn").textContent = "Leave Group";
+        } finally {
+            requestFlags.leavingGroup = false;
         }
     });
 
-
+    document.addEventListener('DOMContentLoaded', () => {
+        if (!userId) return handleLogout();
+        
+        loadGroups();
+        loadTasks();
+        loadLeaderboardData();
+    });
 </script>
 </body>
 </html>
