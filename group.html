@@ -249,10 +249,10 @@
 <script>
     
     const TASK_BASE = 'https://progress-board-1409-20917d01.koyeb.app/task';
-   const GROUP_BASE = 'https://progress-board-1409-20917d01.koyeb.app/group';
+    const GROUP_BASE = 'https://progress-board-1409-20917d01.koyeb.app/group';
     
-   // const TASK_BASE = 'http://localhost:8081/task';
-    //const GROUP_BASE = 'http://localhost:8081/group';
+    // const TASK_BASE = 'http://localhost:8081/task';
+    // const GROUP_BASE = 'http://localhost:8081/group';
     const userId = localStorage.getItem('userId');
     
     // Track current day
@@ -269,13 +269,14 @@
     };
 
     function handleLogout() {
-        // Only clear auth-related data, keep task data
-        const currentDayData = localStorage.getItem('currentDay');
-        localStorage.clear();
-        // Restore task data after clearing
-//        if (currentDayData) {
-  //          localStorage.setItem('currentDay', currentDayData);
-    //    }
+        // Only clear auth-related data, not task data
+        localStorage.removeItem('userId');
+        localStorage.removeItem('userName');
+        localStorage.removeItem('userEmail');
+        localStorage.removeItem('jwtToken');
+        // Also clear the current day data to force reload on next login
+        localStorage.removeItem('currentDay');
+        
         window.location.href = '/';
     }
     
@@ -336,8 +337,10 @@
             const data = await response.json();
             const addDayBtn = document.getElementById('addDayBtn');
             const addTaskBtn = document.getElementById('addTaskBtn');
+            
             if (data === true) {
                 addDayBtn.classList.add('d-none');
+                addTaskBtn.disabled = false;
                 addTaskBtn.classList.remove('d-none');
             } else {
                 addDayBtn.classList.remove('d-none');
@@ -347,8 +350,9 @@
             return data;
         } catch (error) {
             console.error("Error checking if today exists:", error);
-            // Keep the button visible in case of error
+            // Keep the Add Day button visible in case of error
             document.getElementById('addDayBtn').classList.remove('d-none');
+            document.getElementById('addTaskBtn').classList.add('d-none');
             return false;
         }
     }
@@ -361,56 +365,62 @@
             requestFlags.loadingTasks = true;
             setSectionLoading('tasks', true);
             
-            // First check if we have tasks in local storage
+            // First check if today exists to update the Add Day button visibility
+            const todayExists = await checkIfTodayExists();
+            console.log("today exists: ", todayExists);
+            // Get the stored day (if any)
             const storedDay = localStorage.getItem('currentDay');
-            
+            let storedDayData = null;
             if (storedDay) {
-                currentDay = JSON.parse(storedDay);
-                renderCurrentDay();
-                renderTasks(currentDay.tasks || []);
-                document.getElementById('addTaskBtn').disabled = false;
-                
-                // Still check if today exists to update the Add Day button visibility
-                await checkIfTodayExists();
-                
-                setSectionLoading('tasks', false);
-                requestFlags.loadingTasks = false;
-                return; // Exit early if we have data in local storage
-            }
+                storedDayData = JSON.parse(storedDay);
+            } 
             
-            // If no local storage data, fetch from server
-            const convertedUserId = convertToObjectId(userId);
-            const res = await fetch(`${TASK_BASE}/get-user-tasks/${convertedUserId}`);
-            const data = await res.json();
+            // Check for data inconsistency - if server says today exists but local storage says no
+            // OR if server says today doesn't exist but local storage has data
+            const dataInconsistent = (todayExists && !storedDayData) || 
+                                  (!todayExists && storedDayData);
             
-            // Check if today exists to update the Add Day button visibility
-            await checkIfTodayExists();
-            
-            // Check if there are any days with tasks
-            if (data && data.length > 0) {
-                // Sort days by date (newest first)
-                const sortedDays = data.sort((a, b) => 
-                    new Date(b.dateFor) - new Date(a.dateFor)
-                );
-                
-                // Set current day to the most recent one
-                currentDay = sortedDays[0];
-                
-                // Save to local storage
-                localStorage.setItem('currentDay', JSON.stringify(currentDay));
-                
-                renderCurrentDay();
-                renderTasks(currentDay.tasks || []);
-                
-                // Enable add task button since we have a day
-                document.getElementById('addTaskBtn').disabled = false;
+            // Always fetch from server on first visit to a device or if there's inconsistency
+            if (!storedDay || dataInconsistent) {
+                // Fetch from server
+                console.log("data not found now fetching");
+                const convertedUserId = convertToObjectId(userId);
+                const res = await fetch(`${TASK_BASE}/get-user-tasks/${convertedUserId}`);
+                const data = await res.json();
+                console.log(data);
+                // Check if there are any days with tasks
+                if (data) {
+                    console.log("entered data.length > 0 && data");
+                    // Sort days by date (newest first)
+ //                   const sortedDays = data.sort((a, b) => 
+ //                       new Date(b.dateFor) - new Date(a.dateFor)
+//);
+                    
+                    // Set current day to the most recent one
+                  //  currentDay = sortedDays[0];
+                    
+                    // Save to local storage
+                    localStorage.setItem('currentDay', JSON.stringify(data));
+                    renderCurrentDay();
+                    console.log(data.tasks);
+                    renderTasks(data.tasks || []);
+                    
+                    // Enable add task button since we have a day
+                    document.getElementById('addTaskBtn').disabled = false;
+                } else {
+                    document.getElementById('currentDayInfo').innerHTML = 
+                        '<div class="alert alert-info">No days added yet. Click "Add Day" to get started.</div>';
+                    document.getElementById('taskList').innerHTML = '';
+                    
+                    // Disable add task button since we don't have a day yet
+                    document.getElementById('addTaskBtn').disabled = true;
+                }
             } else {
-                document.getElementById('currentDayInfo').innerHTML = 
-                    '<div class="alert alert-info">No days added yet. Click "Add Day" to get started.</div>';
-                document.getElementById('taskList').innerHTML = '';
-                
-                // Disable add task button since we don't have a day yet
-                document.getElementById('addTaskBtn').disabled = true;
+                // If we have consistent data in local storage, use it
+                currentDay = storedDayData;
+                renderCurrentDay();
+                renderTasks(currentDay.tasks || []);
+                document.getElementById('addTaskBtn').disabled = false;
             }
         } catch (error) {
             console.error("Error loading tasks:", error);
@@ -488,8 +498,12 @@
                 
                 // Add unique identifier to query to avoid non-unique result error
                 // Adding id field to the request to ensure we target the specific day
-                const dayToUpdate = {...currentDay};
-                
+                const dayToUpdate = {
+                ...currentDay,
+                dateFor: new Date().toISOString().split('T')[0] // This gives you 'YYYY-MM-DD' format
+                };
+                console.log(dayToUpdate);
+
                 const response = await fetch(`${TASK_BASE}/update-user-tasks/${convertedUserId}`, {
                     method: 'PUT',
                     headers: {'Content-Type': 'application/json'},
@@ -511,6 +525,10 @@
         } catch (error) {
             console.error("Failed to update task:", error);
             alert("Failed to update task status. Please try again.");
+            
+            // On error, reload from server to ensure we're in sync
+            localStorage.removeItem('currentDay');
+            loadTasks();
         } finally {
             setSectionLoading('tasks', false);
             requestFlags.updatingTask = false;
@@ -553,17 +571,17 @@
                 
                 // Hide the Add Day button since today's day has been added
                 document.getElementById('addDayBtn').classList.add('d-none');
+                // Show the Add Task button
+                document.getElementById('addTaskBtn').classList.remove('d-none');
             } else {
                 alert("Failed to add new day. Please try again.");
             }
-            window.location.reload();
         } catch (error) {
             console.error("Error adding day:", error);
             alert("Failed to add new day. Please try again.");
         } finally {
             setButtonLoading('addDayBtn', false);
             requestFlags.addingDay = false;
-            // window.location.reload();
         }
     }
 
@@ -607,12 +625,26 @@
             });
             
             if (response.ok) {
-                // Update local storage
-                localStorage.setItem('currentDay', JSON.stringify(currentDay));
+                // Get updated data from server to ensure consistency
+                const updatedResponse = await fetch(`${TASK_BASE}/get-user-tasks/${convertedUserId}`);
+                
+                if (updatedResponse.ok) {
+                    const data = await updatedResponse.json();
+                    if (data && data.length > 0) {
+                        // Sort by date and take the newest one
+                        const sortedDays = data.sort((a, b) => 
+                            new Date(b.dateFor) - new Date(a.dateFor)
+                        );
+                        currentDay = sortedDays[0];
+                        
+                        // Update local storage
+                        localStorage.setItem('currentDay', JSON.stringify(currentDay));
+                    }
+                }
                 
                 // Hide form and update UI
                 document.getElementById('taskForm').classList.add('d-none');
-                document.getElementById('addTaskBtn').textContent = 'Add Task';
+                document.getElementById('addTaskBtn').querySelector('.button-text').textContent = 'Add Task';
                 renderCurrentDay();
                 renderTasks(currentDay.tasks);
                 loadLeaderboardData();
@@ -622,6 +654,10 @@
         } catch (error) {
             console.error("Failed to add task:", error);
             alert("Failed to add task. Please try again.");
+            
+            // On error, reload from server to ensure we're in sync
+            localStorage.removeItem('currentDay');
+            loadTasks();
         } finally {
             // Reset loading state
             const taskFormSubmitBtn = document.querySelector('#taskForm button[type="submit"]');
@@ -792,7 +828,6 @@
 
     document.addEventListener('DOMContentLoaded', () => {
         if (!userId) return handleLogout();
-        
         loadGroups();
         loadTasks();
         loadLeaderboardData();
