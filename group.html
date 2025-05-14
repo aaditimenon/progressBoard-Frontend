@@ -556,12 +556,14 @@
             } else {
                 alert("Failed to add new day. Please try again.");
             }
+            window.location.reload();
         } catch (error) {
             console.error("Error adding day:", error);
             alert("Failed to add new day. Please try again.");
         } finally {
             setButtonLoading('addDayBtn', false);
             requestFlags.addingDay = false;
+            // window.location.reload();
         }
     }
 
