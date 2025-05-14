@@ -468,6 +468,7 @@
         if (logoutBtn) logoutBtn.disabled = true;
         
         // Add a small delay to show loading state
+        localStorage.clear();
         setTimeout(() => {
             localStorage.removeItem('userId');
             showAlert('You have logged out successfully!', 'success');
