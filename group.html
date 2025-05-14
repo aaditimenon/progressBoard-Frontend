@@ -334,12 +334,14 @@
             }
             
             const data = await response.json();
-            
-            // If today exists, hide the Add Day button
+            const addDayBtn = document.getElementById('addDayBtn');
+            const addTaskBtn = document.getElementById('addTaskBtn');
             if (data === true) {
-                document.getElementById('addDayBtn').classList.add('d-none');
+                addDayBtn.classList.add('d-none');
+                addTaskBtn.classList.remove('d-none');
             } else {
-                document.getElementById('addDayBtn').classList.remove('d-none');
+                addDayBtn.classList.remove('d-none');
+                addTaskBtn.classList.add('d-none');
             }
             
             return data;
@@ -554,12 +556,14 @@
             } else {
                 alert("Failed to add new day. Please try again.");
             }
+            window.location.reload();
         } catch (error) {
             console.error("Error adding day:", error);
             alert("Failed to add new day. Please try again.");
         } finally {
             setButtonLoading('addDayBtn', false);
             requestFlags.addingDay = false;
+            // window.location.reload();
         }
     }
 
