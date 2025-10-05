@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Progress Board</title>
@@ -13,35 +14,51 @@
             margin-top: 2rem;
             text-align: center;
         }
+
         .benefits {
             margin-top: 2rem;
         }
+
         .modal input {
             margin-bottom: 1rem;
         }
+
         .spinner-border {
             width: 1rem;
             height: 1rem;
             margin-right: 0.5rem;
         }
+
         .alert {
             margin-top: 1rem;
             display: none;
         }
+
         .fade-out {
             animation: fadeOut 5s;
         }
+
         @keyframes fadeOut {
-            0% { opacity: 1; }
-            70% { opacity: 1; }
-            100% { opacity: 0; }
+            0% {
+                opacity: 1;
+            }
+
+            70% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0;
+            }
         }
+
         .otp-input-container {
             display: flex;
             justify-content: space-between;
             gap: 8px;
             margin-bottom: 1rem;
         }
+
         .otp-input {
             width: 50px;
             height: 50px;
@@ -50,629 +67,696 @@
             border: 1px solid #ced4da;
             border-radius: 0.25rem;
         }
+
         .resend-otp {
             color: #0d6efd;
             cursor: pointer;
             text-decoration: underline;
         }
+
         .resend-timer {
             color: #6c757d;
         }
+
+        #pageLoader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
+
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 1s forwards;
+            animation-delay: 0.5s;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     </style>
 </head>
+
 <body class="bg-light text-dark">
-<nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+    <div id="pageLoader">
+        <div class="spinner-border text-primary" role="status"></div>
+    </div>
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+        <div class="container">
+            <a class="navbar-brand" href="#">Progress Board</a>
+            <div class="ms-auto" id="navbarButtons">
+                <!-- Navbar buttons will be dynamically inserted here based on login state -->
+            </div>
+        </div>
+    </nav>
+
     <div class="container">
-        <a class="navbar-brand" href="#">Progress Board</a>
-        <div class="ms-auto" id="navbarButtons">
-            <!-- Navbar buttons will be dynamically inserted here based on login state -->
-        </div>
-    </div>
-</nav>
-
-<div class="container">
-    <div id="alertContainer"></div>
-    
-    <div id="homeContent">
-        <div class="hero">
-            <h1 class="display-4">Stay on Track with Progress Board</h1>
-            <p class="lead">Easily manage your tasks, monitor daily progress, and collaborate within groups. Designed for productivity and clarity.</p>
-            <button id="getStartedBtn" class="btn btn-success btn-lg mt-3">Get Started</button>
-            <button onclick="window.location.href='https://github.com/jay-1409'" class="btn btn-dark btn-lg mt-3">
-                Visit my GitHub
-            </button>
-        </div>
-
-        <div class="row benefits text-center">
-            <div class="col-md-4">
-                <h3>📅 Daily Task Tracking</h3>
-                <p>Visualize your daily progress with ease. Add, manage, and track tasks assigned to you every day.</p>
-            </div>
-            <div class="col-md-4">
-                <h3>👥 Group Collaboration</h3>
-                <p>Create or join groups, assign tasks, and collaborate with others in a focused, productive environment.</p>
-            </div>
-            <div class="col-md-4">
-                <h3>📈 Clear Progress Overview</h3>
-                <p>Measure how far you've come with a simple and clear progress report that motivates you to achieve more.</p>
-            </div>
-        </div>
-    </div>
-    
-    <div id="userDashboardPreview" class="mt-4" style="display: none;">
-        <div class="card">
-            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                <h4 class="mb-0">Your Dashboard</h4>
-                <button class="btn btn-light btn-sm" onclick="window.location.href='dashboard.html'">Go to Dashboard</button>
-            </div>
-            <div class="card-body">
-                <p>You're already logged in! Access your groups and tasks from your personal dashboard.</p>
-                <div class="d-grid gap-2">
-                    <button class="btn btn-outline-primary" onclick="window.location.href='dashboard.html'">
-                        <i class="bi bi-grid"></i> View Dashboard
+        <div id="alertContainer"></div>
+        <div class="fade-in">
+            <div id="homeContent">
+                <div class="hero">
+                    <h1 class="display-4">Stay on Track with Progress Board</h1>
+                    <p class="lead">Easily manage your tasks, monitor daily progress, and collaborate within groups.
+                        Designed for productivity and clarity.</p>
+                    <button id="getStartedBtn" class="btn btn-success btn-lg mt-3">Get Started</button>
+                    <button onclick="window.location.href='https://github.com/jay-1409'"
+                        class="btn btn-dark btn-lg mt-3">
+                        Visit my GitHub
                     </button>
+                </div>
+
+                <div class="row benefits text-center">
+                    <div class="col-md-4">
+                        <h3>📅 Daily Task Tracking</h3>
+                        <p>Visualize your daily progress with ease. Add, manage, and track tasks assigned to you every
+                            day.
+                        </p>
+                    </div>
+                    <div class="col-md-4">
+                        <h3>👥 Group Collaboration</h3>
+                        <p>Create or join groups, assign tasks, and collaborate with others in a focused, productive
+                            environment.</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h3>📈 Clear Progress Overview</h3>
+                        <p>Measure how far you've come with a simple and clear progress report that motivates you to
+                            achieve
+                            more.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="userDashboardPreview" class="mt-4" style="display: none;">
+                <div class="card">
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">Your Dashboard</h4>
+                        <button class="btn btn-light btn-sm" onclick="window.location.href='dashboard.html'">Go to
+                            Dashboard</button>
+                    </div>
+                    <div class="card-body">
+                        <p>You're already logged in! Access your groups and tasks from your personal dashboard.</p>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-outline-primary" onclick="window.location.href='dashboard.html'">
+                                <i class="bi bi-grid"></i> View Dashboard
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-</div>
 
-<!-- Login Modal -->
-<div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="loginModalLabel">Login</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <form id="loginForm" onsubmit="event.preventDefault(); handleLogin();">
-            <input type="email" id="loginEmail" class="form-control" placeholder="Email" required>
-            <input type="password" id="loginPassword" class="form-control" placeholder="Password" required>
-            <div class="modal-footer p-0 pt-3">
-                <button id="loginSubmitBtn" type="submit" class="btn btn-primary w-100">
-                    <span id="loginSpinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
-                    Login
-                </button>
+        <!-- Login Modal -->
+        <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="loginModalLabel">Login</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="loginForm" onsubmit="event.preventDefault(); handleLogin();">
+                            <input type="email" id="loginEmail" class="form-control" placeholder="Email" required>
+                            <input type="password" id="loginPassword" class="form-control" placeholder="Password"
+                                required>
+                            <div class="modal-footer p-0 pt-3">
+                                <button id="loginSubmitBtn" type="submit" class="btn btn-primary w-100">
+                                    <span id="loginSpinner" class="spinner-border spinner-border-sm d-none"
+                                        role="status" aria-hidden="true"></span>
+                                    Login
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
+        </div>
 
-<!-- Signup Modal -->
-<div class="modal fade" id="signupModal" tabindex="-1" aria-labelledby="signupModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="signupModalLabel">Sign Up</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <form id="signupForm" onsubmit="event.preventDefault(); initiateSignup();">
-            <input type="text" id="signupUsername" class="form-control" placeholder="set username" required>
-            <input type="email" id="signupEmail" class="form-control" placeholder="enter email" required>
-            <input type="password" id="signupPassword" class="form-control" placeholder="set password" required>
-            <small id="emailWarning" class="text-warning d-block mt-1">
-            ⚠️ Please enter a valid, real email address to receive OTP code.
-            </small>
-            <div class="modal-footer p-0 pt-3">
-                <button id="signupSubmitBtn" type="submit" class="btn btn-success w-100">
-                    <span id="signupSpinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
-                    Sign Up
-                </button>
+        <!-- Signup Modal -->
+        <div class="modal fade" id="signupModal" tabindex="-1" aria-labelledby="signupModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="signupModalLabel">Sign Up</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="signupForm" onsubmit="event.preventDefault(); initiateSignup();">
+                            <input type="text" id="signupUsername" class="form-control" placeholder="set username"
+                                required>
+                            <input type="email" id="signupEmail" class="form-control" placeholder="enter email"
+                                required>
+                            <input type="password" id="signupPassword" class="form-control" placeholder="set password"
+                                required>
+                            <small id="emailWarning" class="text-warning d-block mt-1">
+                                ⚠️ Please enter a valid, real email address to receive OTP code.
+                            </small>
+                            <div class="modal-footer p-0 pt-3">
+                                <button id="signupSubmitBtn" type="submit" class="btn btn-success w-100">
+                                    <span id="signupSpinner" class="spinner-border spinner-border-sm d-none"
+                                        role="status" aria-hidden="true"></span>
+                                    Sign Up
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
+        </div>
 
-<!-- OTP Verification Modal -->
-<div class="modal fade" id="otpVerificationModal" tabindex="-1" aria-labelledby="otpVerificationModalLabel" aria-hidden="true" data-bs-backdrop="static">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="otpVerificationModalLabel">Email Verification</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <p>We've sent a verification code to your email. Please enter the code below:</p>
-        <p>Do check the spam incase you cant find the mail</p>
-        <form id="otpVerificationForm" onsubmit="event.preventDefault(); verifyOtp();">
-            <div class="otp-input-container">
-                <input type="text" maxlength="1" class="form-control otp-input" id="otp1" required>
-                <input type="text" maxlength="1" class="form-control otp-input" id="otp2" required>
-                <input type="text" maxlength="1" class="form-control otp-input" id="otp3" required>
-                <input type="text" maxlength="1" class="form-control otp-input" id="otp4" required>
-                <!-- <input type="text" maxlength="1" class="form-control otp-input" id="otp5" required> -->
-                <!-- <input type="text" maxlength="1" class="form-control otp-input" id="otp6" required> -->
+        <!-- OTP Verification Modal -->
+        <div class="modal fade" id="otpVerificationModal" tabindex="-1" aria-labelledby="otpVerificationModalLabel"
+            aria-hidden="true" data-bs-backdrop="static">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="otpVerificationModalLabel">Email Verification</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>We've sent a verification code to your email. Please enter the code below:</p>
+                        <p>Do check the spam incase you cant find the mail</p>
+                        <form id="otpVerificationForm" onsubmit="event.preventDefault(); verifyOtp();">
+                            <div class="otp-input-container">
+                                <input type="text" maxlength="1" class="form-control otp-input" id="otp1" required>
+                                <input type="text" maxlength="1" class="form-control otp-input" id="otp2" required>
+                                <input type="text" maxlength="1" class="form-control otp-input" id="otp3" required>
+                                <input type="text" maxlength="1" class="form-control otp-input" id="otp4" required>
+                                <!-- <input type="text" maxlength="1" class="form-control otp-input" id="otp5" required> -->
+                                <!-- <input type="text" maxlength="1" class="form-control otp-input" id="otp6" required> -->
+                            </div>
+                            <p>
+                                <span id="resendTimerContainer" class="resend-timer">Resend in <span
+                                        id="resendTimer">60</span>s</span>
+                                <span id="resendOtpBtn" class="resend-otp" style="display: none;"
+                                    onclick="resendOtp()">Resend OTP</span>
+                            </p>
+                            <div class="modal-footer p-0 pt-3">
+                                <button id="verifyOtpBtn" type="submit" class="btn btn-primary w-100">
+                                    <span id="otpVerificationSpinner" class="spinner-border spinner-border-sm d-none"
+                                        role="status" aria-hidden="true"></span>
+                                    Verify
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
-            <p>
-                <span id="resendTimerContainer" class="resend-timer">Resend in <span id="resendTimer">60</span>s</span>
-                <span id="resendOtpBtn" class="resend-otp" style="display: none;" onclick="resendOtp()">Resend OTP</span>
-            </p>
-            <div class="modal-footer p-0 pt-3">
-                <button id="verifyOtpBtn" type="submit" class="btn btn-primary w-100">
-                    <span id="otpVerificationSpinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
-                    Verify
-                </button>
-            </div>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
+        </div>
 
-<footer class="text-center mt-5 py-4 border-top">
-    <p>&copy; 2025 Progress Board. All rights reserved.</p>
-</footer>
+        <footer class="text-center mt-5 py-4 border-top">
+            <p>&copy; 2025 Progress Board. All rights reserved.</p>
+        </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-    const BASE_URL = 'https://progress-board-1409-20917d01.koyeb.app';
-    //const BASE_URL = 'http://localhost:8081';
-    
-    // Global variables to track request states
-    let isLoggingIn = false;
-    let isSigningUp = false;
-    let isVerifyingOtp = false;
-    let resendOtpTimer = null;
-    let resendOtpCountdown = 60;
-    
-    // Temporary storage for signup data
-    let pendingSignup = {
-        username: '',
-        email: '',
-        password: ''
-    };
-    
-    // Show alert messages
-    function showAlert(message, type = 'danger') {
-        const alertContainer = document.getElementById('alertContainer');
-        const alertId = 'alert-' + Date.now();
-        
-        const alertDiv = document.createElement('div');
-        alertDiv.id = alertId;
-        alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
-        alertDiv.role = 'alert';
-        alertDiv.style.display = 'block';
-        
-        alertDiv.innerHTML = `
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+        <script>
+            const BASE_URL = 'https://progress-board-1409-20917d01.koyeb.app';
+            //const BASE_URL = 'http://localhost:8081';
+
+            // Global variables to track request states
+            let isLoggingIn = false;
+            let isSigningUp = false;
+            let isVerifyingOtp = false;
+            let resendOtpTimer = null;
+            let resendOtpCountdown = 60;
+
+            // Temporary storage for signup data
+            let pendingSignup = {
+                username: '',
+                email: '',
+                password: ''
+            };
+
+            // Show alert messages
+            function showAlert(message, type = 'danger') {
+                const alertContainer = document.getElementById('alertContainer');
+                const alertId = 'alert-' + Date.now();
+
+                const alertDiv = document.createElement('div');
+                alertDiv.id = alertId;
+                alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+                alertDiv.role = 'alert';
+                alertDiv.style.display = 'block';
+
+                alertDiv.innerHTML = `
             ${message}
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         `;
-        
-        alertContainer.appendChild(alertDiv);
-        
-        // Auto dismiss after 5 seconds
-        setTimeout(() => {
-            const alert = document.getElementById(alertId);
-            if (alert) {
-                alert.classList.add('fade-out');
+
+                alertContainer.appendChild(alertDiv);
+
+                // Auto dismiss after 5 seconds
                 setTimeout(() => {
-                    if (alert && alert.parentNode) {
-                        alert.parentNode.removeChild(alert);
+                    const alert = document.getElementById(alertId);
+                    if (alert) {
+                        alert.classList.add('fade-out');
+                        setTimeout(() => {
+                            if (alert && alert.parentNode) {
+                                alert.parentNode.removeChild(alert);
+                            }
+                        }, 500);
                     }
+                }, 5000);
+
+                return alertId;
+            }
+
+            // Toggle button loading state
+            function toggleButtonLoading(buttonId, spinnerID, isLoading) {
+                const button = document.getElementById(buttonId);
+                const spinner = document.getElementById(spinnerID);
+
+                if (button && spinner) {
+                    button.disabled = isLoading;
+
+                    if (isLoading) {
+                        spinner.classList.remove('d-none');
+                    } else {
+                        spinner.classList.add('d-none');
+                    }
+                }
+            }
+
+            // Handle OTP input auto-focus
+            document.addEventListener('DOMContentLoaded', function () {
+                const otpInputs = document.querySelectorAll('.otp-input');
+
+                otpInputs.forEach((input, index) => {
+                    // Only allow numbers
+                    input.addEventListener('input', function (e) {
+                        this.value = this.value.replace(/[^0-9]/g, '');
+
+                        // Auto focus to next input
+                        if (this.value && index < otpInputs.length - 1) {
+                            otpInputs[index + 1].focus();
+                        }
+                    });
+
+                    // Handle backspace to go to previous input
+                    input.addEventListener('keydown', function (e) {
+                        if (e.key === 'Backspace' && !this.value && index > 0) {
+                            otpInputs[index - 1].focus();
+                        }
+                    });
+                });
+            });
+
+            // Start resend OTP timer
+            function startResendOtpTimer() {
+                resendOtpCountdown = 60;
+                document.getElementById('resendTimer').textContent = resendOtpCountdown;
+                document.getElementById('resendTimerContainer').style.display = 'inline';
+                document.getElementById('resendOtpBtn').style.display = 'none';
+
+                clearInterval(resendOtpTimer);
+                resendOtpTimer = setInterval(() => {
+                    resendOtpCountdown--;
+                    document.getElementById('resendTimer').textContent = resendOtpCountdown;
+
+                    if (resendOtpCountdown <= 0) {
+                        clearInterval(resendOtpTimer);
+                        document.getElementById('resendTimerContainer').style.display = 'none';
+                        document.getElementById('resendOtpBtn').style.display = 'inline';
+                    }
+                }, 1000);
+            }
+
+            // Reset OTP input fields
+            function resetOtpInputs() {
+                const otpInputs = document.querySelectorAll('.otp-input');
+                otpInputs.forEach(input => {
+                    input.value = '';
+                });
+                otpInputs[0].focus();
+            }
+
+            // Initialize OTP verification modal
+            function initOtpVerification(email) {
+                resetOtpInputs();
+                startResendOtpTimer();
+
+                // Show OTP verification modal
+                const otpModal = new bootstrap.Modal(document.getElementById('otpVerificationModal'));
+                otpModal.show();
+
+                // Focus on first OTP input field
+                setTimeout(() => {
+                    document.getElementById('otp1').focus();
                 }, 500);
             }
-        }, 5000);
-        
-        return alertId;
-    }
-    
-    // Toggle button loading state
-    function toggleButtonLoading(buttonId, spinnerID, isLoading) {
-        const button = document.getElementById(buttonId);
-        const spinner = document.getElementById(spinnerID);
-        
-        if (button && spinner) {
-            button.disabled = isLoading;
-            
-            if (isLoading) {
-                spinner.classList.remove('d-none');
-            } else {
-                spinner.classList.add('d-none');
-            }
-        }
-    }
-    
-    // Handle OTP input auto-focus
-    document.addEventListener('DOMContentLoaded', function() {
-        const otpInputs = document.querySelectorAll('.otp-input');
-        
-        otpInputs.forEach((input, index) => {
-            // Only allow numbers
-            input.addEventListener('input', function(e) {
-                this.value = this.value.replace(/[^0-9]/g, '');
-                
-                // Auto focus to next input
-                if (this.value && index < otpInputs.length - 1) {
-                    otpInputs[index + 1].focus();
-                }
-            });
-            
-            // Handle backspace to go to previous input
-            input.addEventListener('keydown', function(e) {
-                if (e.key === 'Backspace' && !this.value && index > 0) {
-                    otpInputs[index - 1].focus();
-                }
-            });
-        });
-    });
-    
-    // Start resend OTP timer
-    function startResendOtpTimer() {
-        resendOtpCountdown = 60;
-        document.getElementById('resendTimer').textContent = resendOtpCountdown;
-        document.getElementById('resendTimerContainer').style.display = 'inline';
-        document.getElementById('resendOtpBtn').style.display = 'none';
-        
-        clearInterval(resendOtpTimer);
-        resendOtpTimer = setInterval(() => {
-            resendOtpCountdown--;
-            document.getElementById('resendTimer').textContent = resendOtpCountdown;
-            
-            if (resendOtpCountdown <= 0) {
-                clearInterval(resendOtpTimer);
-                document.getElementById('resendTimerContainer').style.display = 'none';
-                document.getElementById('resendOtpBtn').style.display = 'inline';
-            }
-        }, 1000);
-    }
-    
-    // Reset OTP input fields
-    function resetOtpInputs() {
-        const otpInputs = document.querySelectorAll('.otp-input');
-        otpInputs.forEach(input => {
-            input.value = '';
-        });
-        otpInputs[0].focus();
-    }
-    
-    // Initialize OTP verification modal
-    function initOtpVerification(email) {
-        resetOtpInputs();
-        startResendOtpTimer();
-        
-        // Show OTP verification modal
-        const otpModal = new bootstrap.Modal(document.getElementById('otpVerificationModal'));
-        otpModal.show();
-        
-        // Focus on first OTP input field
-        setTimeout(() => {
-            document.getElementById('otp1').focus();
-        }, 500);
-    }
-    
-    // Send OTP email
-    async function sendOtpEmail(email) {
-        try {
-            const response = await fetch(`${BASE_URL}/Auth/Send-Otp-Mail?to=${encodeURIComponent(email)}`, {
-                method: 'POST'
-            });
-            
-            if (response.ok) {
-                return true;
-            } else {
-                throw new Error('Failed to send OTP');
-            }
-        } catch (error) {
-            console.error('Error sending OTP:', error);
-            return false;
-        }
-    }
-    
-    // Verify OTP
-    async function verifyOtp() {
-        if (isVerifyingOtp) return;
-        
-        // Collect OTP digits
-        const otp1 = document.getElementById('otp1').value;
-        const otp2 = document.getElementById('otp2').value;
-        const otp3 = document.getElementById('otp3').value;
-        const otp4 = document.getElementById('otp4').value;
- //       const otp5 = document.getElementById('otp5').value;
-   //     const otp6 = document.getElementById('otp6').value;
-        
-        // Validate all digits are filled
-        if (!otp1 || !otp2 || !otp3 || !otp4) {
-            showAlert('Please enter all 4 digits of the OTP');
-            return;
-        }
-        
-        const otpCode = parseInt(`${otp1}${otp2}${otp3}${otp4}`);
-        isVerifyingOtp = true;
-        toggleButtonLoading('verifyOtpBtn', 'otpVerificationSpinner', true);
-        
-        try {
-            // Verify OTP with backend
-            const response = await fetch(`${BASE_URL}/Auth/validate-email?receiverMail=${encodeURIComponent(pendingSignup.email)}&enteredOtp=${otpCode}`);
-            
-            if (response.ok) {
-                const result = await response.text();
-                
-                if (result === 'true') {
-                    // OTP verified, proceed with signup
-                    completeSignup();
-                } else {
-                    showAlert('Invalid OTP. Please try again.');
-                    resetOtpInputs();
-                }
-            } else {
-                showAlert('Failed to verify OTP. Please try again.');
-            }
-        } catch (error) {
-            console.error('Error verifying OTP:', error);
-            showAlert('Network error occurred during OTP verification.');
-        } finally {
-            isVerifyingOtp = false;
-            toggleButtonLoading('verifyOtpBtn', 'otpVerificationSpinner', false);
-        }
-    }
-    
-    // Resend OTP
-    async function resendOtp() {
-        const success = await sendOtpEmail(pendingSignup.email);
-        
-        if (success) {
-            showAlert('OTP has been resent to your email.', 'info');
-            startResendOtpTimer();
-        } else {
-            showAlert('Failed to resend OTP. Please try again.');
-        }
-    }
-    
-    // Initial signup process
-    async function initiateSignup() {
-        if (isSigningUp) return;
-        
-        isSigningUp = true;
-        toggleButtonLoading('signupSubmitBtn', 'signupSpinner', true);
-        
-        // Store signup data
-        pendingSignup = {
-            username: document.getElementById('signupUsername').value,
-            email: document.getElementById('signupEmail').value,
-            password: document.getElementById('signupPassword').value
-        };
-        
-        try {
-            // Send OTP to the user's email
-            const otpSent = await sendOtpEmail(pendingSignup.email);
-            
-            if (otpSent) {
-                // Close signup modal
-                const signupModal = bootstrap.Modal.getInstance(document.getElementById('signupModal'));
-                if (signupModal) signupModal.hide();
-                
-                // Show OTP verification modal
-                initOtpVerification(pendingSignup.email);
-            } else {
-                showAlert('Failed to send verification code. Please try again.');
-            }
-        } catch (error) {
-            console.error('Error during signup initiation:', error);
-            showAlert('Network error occurred during signup.');
-        } finally {
-            isSigningUp = false;
-            toggleButtonLoading('signupSubmitBtn', 'signupSpinner', false);
-        }
-    }
-    
-    // Complete signup after OTP verification
-    async function completeSignup() {
-        try {
-            toggleButtonLoading('verifyOtpBtn', 'otpVerificationSpinner', true);
-            
-            // Create user account
-            const res = await fetch(`${BASE_URL}/user`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    username: pendingSignup.username,
-                    email: pendingSignup.email,
-                    password: pendingSignup.password
-                })
-            });
 
-            if (res.ok) {
-                // If signup successful, now login the user automatically
-                const loginRes = await fetch(`${BASE_URL}/Auth/obId?email=${encodeURIComponent(pendingSignup.email)}&inPass=${encodeURIComponent(pendingSignup.password)}`);
-                
-                if (loginRes.ok) {
-                    const userId = await loginRes.text();
-                    localStorage.setItem('userId', userId.toString());
-                    
-                    // Close the OTP modal
-                    const otpModal = bootstrap.Modal.getInstance(document.getElementById('otpVerificationModal'));
-                    if (otpModal) otpModal.hide();
-                    
-                    // Show success message
-                    showAlert('Signup successful! Redirecting to dashboard...', 'success');
-                    
-                    // Update UI immediately to reflect logged-in state
-                    updateUIForLoggedInUser();
-                    
-                    // Clear the pending signup data
-                    pendingSignup = { username: '', email: '', password: '' };
-                    
-                    // Redirect after a short delay
-                    setTimeout(() => {
-                        window.location.href = 'dashboard.html';
-                    }, 1500);
+            // Send OTP email
+            async function sendOtpEmail(email) {
+                try {
+                    const response = await fetch(`${BASE_URL}/Auth/Send-Otp-Mail?to=${encodeURIComponent(email)}`, {
+                        method: 'POST'
+                    });
 
-                    const url = `${BASE_URL}/group/add-member/${userId}/68243568bf164034f66583cd?inPsas=wlc`;
-                    try {
-                        const res = await fetch(url, {
-                            method: 'PUT'
-                        });
-                        
-                        if (res.ok) {
-                            // Close the modal
-                            const joinModal = bootstrap.Modal.getInstance(document.getElementById('joinGroupModal'));
-                            if (joinModal) joinModal.hide();
-                            
-                            // Show success message
-                            showAlert('Successfully joined the group!', 'success');
-                            
-                            // Clear the form
-                            document.getElementById('joinGroupForm').reset();
-                            
-                            // Refresh groups list
-                            await fetchUserGroups();
-                        } else {
-                            const errorText = await res.text();
-                            showAlert(`Failed to join group: ${errorText || 'Please check your credentials.'}`);
-                        }
-                    } catch (error) {
-                        console.error('Error joining group:', error);
-                        showAlert('Network error occurred while trying to join the group.');
-                    } finally {
-                        isJoiningGroup = false;
-                        toggleButtonLoading('joinSubmitBtn', 'joinSpinner', false);
+                    if (response.ok) {
+                        return true;
+                    } else {
+                        throw new Error('Failed to send OTP');
                     }
-                } else {
-                    showAlert('Signup successful but login failed. Please try logging in manually.');
+                } catch (error) {
+                    console.error('Error sending OTP:', error);
+                    return false;
                 }
-            } else {
-                const errorText = await res.text();
-                showAlert(`Signup failed: ${errorText || 'Please try again.'}`);
             }
-        } catch (error) {
-            console.error('Error during signup completion:', error);
-            showAlert('Network error occurred during signup.');
-        } finally {
-            toggleButtonLoading('verifyOtpBtn', 'otpVerificationSpinner', false);
-        }
-    }
-    
-    async function handleLogin() {
-        if (isLoggingIn) return; // Prevent multiple submissions
-        
-        isLoggingIn = true;
-        toggleButtonLoading('loginSubmitBtn', 'loginSpinner', true);
-        
-        const email = document.getElementById('loginEmail').value;
-        const password = document.getElementById('loginPassword').value;
 
-        try {
-            // First, validate the user credentials
-            const res = await fetch(`${BASE_URL}/Auth/validate?email=${encodeURIComponent(email)}&inPass=${encodeURIComponent(password)}`);
-            const result = await res.text();
+            // Verify OTP
+            async function verifyOtp() {
+                if (isVerifyingOtp) return;
 
-            if (res.ok && result === 'true') {
-                // If credentials are valid, fetch the ObjectId of the user
-                const userIdRes = await fetch(`${BASE_URL}/Auth/obId?email=${encodeURIComponent(email)}&inPass=${encodeURIComponent(password)}`);
-                
-                if (userIdRes.ok) {
-                    const userId = await userIdRes.text(); // The response will contain the ObjectId of the user
-                    localStorage.setItem('userId', userId.toString());
-                    
-                    // Close the modal
-                    const loginModal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
-                    if (loginModal) loginModal.hide();
-                    
-                    // Show success message
-                    showAlert('Login successful! Redirecting to dashboard...', 'success');
-                    
-                    // Update UI immediately to reflect logged-in state
-                    updateUIForLoggedInUser();
-                    
-                    // Redirect after a short delay
-                    setTimeout(() => {
-                        window.location.href = 'dashboard.html';
-                    }, 1500);
-                } else {
-                    showAlert('Failed to retrieve user data.');
+                // Collect OTP digits
+                const otp1 = document.getElementById('otp1').value;
+                const otp2 = document.getElementById('otp2').value;
+                const otp3 = document.getElementById('otp3').value;
+                const otp4 = document.getElementById('otp4').value;
+                //       const otp5 = document.getElementById('otp5').value;
+                //     const otp6 = document.getElementById('otp6').value;
+
+                // Validate all digits are filled
+                if (!otp1 || !otp2 || !otp3 || !otp4) {
+                    showAlert('Please enter all 4 digits of the OTP');
+                    return;
                 }
-            } else {
-                showAlert('Invalid credentials: incorrect password or account does not exist.');
+
+                const otpCode = parseInt(`${otp1}${otp2}${otp3}${otp4}`);
+                isVerifyingOtp = true;
+                toggleButtonLoading('verifyOtpBtn', 'otpVerificationSpinner', true);
+
+                try {
+                    // Verify OTP with backend
+                    const response = await fetch(`${BASE_URL}/Auth/validate-email?receiverMail=${encodeURIComponent(pendingSignup.email)}&enteredOtp=${otpCode}`);
+
+                    if (response.ok) {
+                        const result = await response.text();
+
+                        if (result === 'true') {
+                            // OTP verified, proceed with signup
+                            completeSignup();
+                        } else {
+                            showAlert('Invalid OTP. Please try again.');
+                            resetOtpInputs();
+                        }
+                    } else {
+                        showAlert('Failed to verify OTP. Please try again.');
+                    }
+                } catch (error) {
+                    console.error('Error verifying OTP:', error);
+                    showAlert('Network error occurred during OTP verification.');
+                } finally {
+                    isVerifyingOtp = false;
+                    toggleButtonLoading('verifyOtpBtn', 'otpVerificationSpinner', false);
+                }
             }
-        } catch (error) {
-            console.error('Error during login:', error);
-            showAlert('Network error occurred during login.');
-        } finally {
-            isLoggingIn = false;
-            toggleButtonLoading('loginSubmitBtn', 'loginSpinner', false);
-        }
-    }
-    
-    // Update navbar based on login state
-    function updateNavbar() {
-        const navbarButtons = document.getElementById('navbarButtons');
-        const userId = localStorage.getItem('userId');
-        
-        if (userId) {
-            // User is logged in
-            navbarButtons.innerHTML = `
+
+            // Resend OTP
+            async function resendOtp() {
+                const success = await sendOtpEmail(pendingSignup.email);
+
+                if (success) {
+                    showAlert('OTP has been resent to your email.', 'info');
+                    startResendOtpTimer();
+                } else {
+                    showAlert('Failed to resend OTP. Please try again.');
+                }
+            }
+
+            // Initial signup process
+            async function initiateSignup() {
+                if (isSigningUp) return;
+
+                isSigningUp = true;
+                toggleButtonLoading('signupSubmitBtn', 'signupSpinner', true);
+
+                // Store signup data
+                pendingSignup = {
+                    username: document.getElementById('signupUsername').value,
+                    email: document.getElementById('signupEmail').value,
+                    password: document.getElementById('signupPassword').value
+                };
+
+                try {
+                    // Send OTP to the user's email
+                    const otpSent = await sendOtpEmail(pendingSignup.email);
+
+                    if (otpSent) {
+                        // Close signup modal
+                        const signupModal = bootstrap.Modal.getInstance(document.getElementById('signupModal'));
+                        if (signupModal) signupModal.hide();
+
+                        // Show OTP verification modal
+                        initOtpVerification(pendingSignup.email);
+                    } else {
+                        showAlert('Failed to send verification code. Please try again.');
+                    }
+                } catch (error) {
+                    console.error('Error during signup initiation:', error);
+                    showAlert('Network error occurred during signup.');
+                } finally {
+                    isSigningUp = false;
+                    toggleButtonLoading('signupSubmitBtn', 'signupSpinner', false);
+                }
+            }
+
+            // Complete signup after OTP verification
+            async function completeSignup() {
+                try {
+                    toggleButtonLoading('verifyOtpBtn', 'otpVerificationSpinner', true);
+
+                    // Create user account
+                    const res = await fetch(`${BASE_URL}/user`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            username: pendingSignup.username,
+                            email: pendingSignup.email,
+                            password: pendingSignup.password
+                        })
+                    });
+
+                    if (res.ok) {
+                        // If signup successful, now login the user automatically
+                        const loginRes = await fetch(`${BASE_URL}/Auth/obId?email=${encodeURIComponent(pendingSignup.email)}&inPass=${encodeURIComponent(pendingSignup.password)}`);
+
+                        if (loginRes.ok) {
+                            const userId = await loginRes.text();
+                            localStorage.setItem('userId', userId.toString());
+
+                            // Close the OTP modal
+                            const otpModal = bootstrap.Modal.getInstance(document.getElementById('otpVerificationModal'));
+                            if (otpModal) otpModal.hide();
+
+                            // Show success message
+                            showAlert('Signup successful! Redirecting to dashboard...', 'success');
+
+                            // Update UI immediately to reflect logged-in state
+                            updateUIForLoggedInUser();
+
+                            // Clear the pending signup data
+                            pendingSignup = { username: '', email: '', password: '' };
+
+                            // Redirect after a short delay
+                            setTimeout(() => {
+                                window.location.href = 'dashboard.html';
+                            }, 1500);
+
+                            const url = `${BASE_URL}/group/add-member/${userId}/68243568bf164034f66583cd?inPsas=wlc`;
+                            try {
+                                const res = await fetch(url, {
+                                    method: 'PUT'
+                                });
+
+                                if (res.ok) {
+                                    // Close the modal
+                                    const joinModal = bootstrap.Modal.getInstance(document.getElementById('joinGroupModal'));
+                                    if (joinModal) joinModal.hide();
+
+                                    // Show success message
+                                    showAlert('Successfully joined the group!', 'success');
+
+                                    // Clear the form
+                                    document.getElementById('joinGroupForm').reset();
+
+                                    // Refresh groups list
+                                    await fetchUserGroups();
+                                } else {
+                                    const errorText = await res.text();
+                                    showAlert(`Failed to join group: ${errorText || 'Please check your credentials.'}`);
+                                }
+                            } catch (error) {
+                                console.error('Error joining group:', error);
+                                showAlert('Network error occurred while trying to join the group.');
+                            } finally {
+                                isJoiningGroup = false;
+                                toggleButtonLoading('joinSubmitBtn', 'joinSpinner', false);
+                            }
+                        } else {
+                            showAlert('Signup successful but login failed. Please try logging in manually.');
+                        }
+                    } else {
+                        const errorText = await res.text();
+                        showAlert(`Signup failed: ${errorText || 'Please try again.'}`);
+                    }
+                } catch (error) {
+                    console.error('Error during signup completion:', error);
+                    showAlert('Network error occurred during signup.');
+                } finally {
+                    toggleButtonLoading('verifyOtpBtn', 'otpVerificationSpinner', false);
+                }
+            }
+
+            async function handleLogin() {
+                if (isLoggingIn) return; // Prevent multiple submissions
+
+                isLoggingIn = true;
+                toggleButtonLoading('loginSubmitBtn', 'loginSpinner', true);
+
+                const email = document.getElementById('loginEmail').value;
+                const password = document.getElementById('loginPassword').value;
+
+                try {
+                    // First, validate the user credentials
+                    const res = await fetch(`${BASE_URL}/Auth/validate?email=${encodeURIComponent(email)}&inPass=${encodeURIComponent(password)}`);
+                    const result = await res.text();
+
+                    if (res.ok && result === 'true') {
+                        // If credentials are valid, fetch the ObjectId of the user
+                        const userIdRes = await fetch(`${BASE_URL}/Auth/obId?email=${encodeURIComponent(email)}&inPass=${encodeURIComponent(password)}`);
+
+                        if (userIdRes.ok) {
+                            const userId = await userIdRes.text(); // The response will contain the ObjectId of the user
+                            localStorage.setItem('userId', userId.toString());
+
+                            // Close the modal
+                            const loginModal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
+                            if (loginModal) loginModal.hide();
+
+                            // Show success message
+                            showAlert('Login successful! Redirecting to dashboard...', 'success');
+
+                            // Update UI immediately to reflect logged-in state
+                            updateUIForLoggedInUser();
+
+                            // Redirect after a short delay
+                            setTimeout(() => {
+                                window.location.href = 'dashboard.html';
+                            }, 1500);
+                        } else {
+                            showAlert('Failed to retrieve user data.');
+                        }
+                    } else {
+                        showAlert('Invalid credentials: incorrect password or account does not exist.');
+                    }
+                } catch (error) {
+                    console.error('Error during login:', error);
+                    showAlert('Network error occurred during login.');
+                } finally {
+                    isLoggingIn = false;
+                    toggleButtonLoading('loginSubmitBtn', 'loginSpinner', false);
+                }
+            }
+
+            // Update navbar based on login state
+            function updateNavbar() {
+                const navbarButtons = document.getElementById('navbarButtons');
+                const userId = localStorage.getItem('userId');
+
+                if (userId) {
+                    // User is logged in
+                    navbarButtons.innerHTML = `
                 <button class="btn btn-outline-primary me-2" onclick="window.location.href='dashboard.html'">Dashboard</button>
                 <button class="btn btn-danger" onclick="handleLogout()">Logout</button>
             `;
-        } else {
-            // User is not logged in
-            navbarButtons.innerHTML = `
+                } else {
+                    // User is not logged in
+                    navbarButtons.innerHTML = `
                 <button class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#loginModal">Login</button>
                 <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#signupModal">Sign Up</button>
             `;
-        }
-    }
-    
-    // Update UI elements for logged-in user
-    function updateUIForLoggedInUser() {
-        // Update navbar
-        updateNavbar();
-        
-        // Show dashboard preview section
-        document.getElementById('userDashboardPreview').style.display = 'block';
-        
-        // Update "Get Started" button to redirect to dashboard
-        const getStartedBtn = document.getElementById('getStartedBtn');
-        getStartedBtn.textContent = 'Go to Dashboard';
-        getStartedBtn.onclick = function() { window.location.href = 'dashboard.html'; };
-    }
-    
-    // Logout handler
-    function handleLogout() {
-        localStorage.removeItem('userId');
-        showAlert('You have been logged out successfully!', 'success');
-        
-        // Update UI for logged-out state
-        updateNavbar();
-        document.getElementById('userDashboardPreview').style.display = 'none';
-        
-        // Reset "Get Started" button
-        const getStartedBtn = document.getElementById('getStartedBtn');
-        getStartedBtn.textContent = 'Get Started';
-        localStorage.clear();
-        getStartedBtn.onclick = function() {
-            const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
-            loginModal.show();
-        };
-    }
-    
-    // Initialize the page
-    window.onload = function() {
-        // Check if user is logged in
-        const userId = localStorage.getItem('userId');
-        
-        // Set up "Get Started" button behavior
-        const getStartedBtn = document.getElementById('getStartedBtn');
-        if (userId) {
-            // User is logged in - update UI accordingly
-            updateUIForLoggedInUser();
-        } else {
-            // User is not logged in - setup login modal trigger
-            getStartedBtn.onclick = function() {
-                const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
-                loginModal.show();
+                }
+            }
+
+            // Update UI elements for logged-in user
+            function updateUIForLoggedInUser() {
+                // Update navbar
+                updateNavbar();
+
+                // Show dashboard preview section
+                document.getElementById('userDashboardPreview').style.display = 'block';
+
+                // Update "Get Started" button to redirect to dashboard
+                const getStartedBtn = document.getElementById('getStartedBtn');
+                getStartedBtn.textContent = 'Go to Dashboard';
+                getStartedBtn.onclick = function () { window.location.href = 'dashboard.html'; };
+            }
+
+            // Logout handler
+            function handleLogout() {
+                localStorage.removeItem('userId');
+                showAlert('You have been logged out successfully!', 'success');
+
+                // Update UI for logged-out state
+                updateNavbar();
+                document.getElementById('userDashboardPreview').style.display = 'none';
+
+                // Reset "Get Started" button
+                const getStartedBtn = document.getElementById('getStartedBtn');
+                getStartedBtn.textContent = 'Get Started';
+                localStorage.clear();
+                getStartedBtn.onclick = function () {
+                    const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+                    loginModal.show();
+                };
+            }
+
+            // Initialize the page
+            window.onload = function () {
+                // Check if user is logged in
+                const userId = localStorage.getItem('userId');
+
+                // Set up "Get Started" button behavior
+                const getStartedBtn = document.getElementById('getStartedBtn');
+                if (userId) {
+                    // User is logged in - update UI accordingly
+                    updateUIForLoggedInUser();
+                } else {
+                    // User is not logged in - setup login modal trigger
+                    getStartedBtn.onclick = function () {
+                        const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+                        loginModal.show();
+                    };
+                }
+
+                // Always update navbar
+                updateNavbar();
             };
-        }
-        
-        // Always update navbar
-        updateNavbar();
-    };
-</script>
+            window.addEventListener('load', () => {
+                const loader = document.getElementById('pageLoader');
+                loader.style.opacity = '0';
+                setTimeout(() => {
+                    loader.style.display = 'none';
+                }, 500);
+
+                // Optional: add fade-in class to content
+                document.querySelectorAll('.fade-in').forEach(el => {
+                    el.style.opacity = '1';
+                });
+            });
+
+        </script>
 </body>
+
 </html>
