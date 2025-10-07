@@ -28,36 +28,190 @@
         <div id="alertContainer"></div>
         <div class="fade-in">
             <div id="homeContent">
+                <!-- Enhanced Hero Section -->
                 <div class="hero">
-                    <h1 class="display-4">Stay on Track with Progress Board</h1>
-                    <p class="lead">Easily manage your tasks, monitor daily progress, and collaborate within groups.
-                        Designed for productivity and clarity.</p>
-                    <button id="getStartedBtn" class="btn btn-success btn-lg mt-3">Get Started</button>
-                    <button onclick="window.location.href='https://github.com/jay-1409'"
-                        class="btn btn-dark btn-lg mt-3">
-                        Visit my GitHub
-                    </button>
+                    <div class="hero-content">
+                        <div class="hero-badge">
+                            <i class="bi bi-lightning-charge"></i>
+                            <span>Boost Your Productivity</span>
+                        </div>
+                        <h1 class="display-3 hero-title">Stay on Track with <span class="text-gradient">Progress Board</span></h1>
+                        <p class="hero-subtitle">Transform your workflow with intelligent task management, real-time collaboration, and insightful progress tracking. Built for teams and individuals who value productivity.</p>
+                        <div class="hero-buttons">
+                            <button id="getStartedBtn" class="btn btn-primary btn-lg me-3">
+                                <i class="bi bi-rocket-takeoff me-2"></i>Get Started Free
+                            </button>
+                            <button onclick="window.location.href='https://github.com/jay-1409'" class="btn btn-outline-light btn-lg">
+                                <i class="bi bi-github me-2"></i>View on GitHub
+                            </button>
+                        </div>
+                        <div class="hero-stats">
+                            <div class="stat-item">
+                                <div class="stat-number">10K+</div>
+                                <div class="stat-label">Tasks Completed</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-number">500+</div>
+                                <div class="stat-label">Active Users</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-number">99.9%</div>
+                                <div class="stat-label">Uptime</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="hero-visual">
+                        <div class="floating-card card-1">
+                            <i class="bi bi-check-circle-fill text-success"></i>
+                            <span>Task Completed</span>
+                        </div>
+                        <div class="floating-card card-2">
+                            <i class="bi bi-people-fill text-primary"></i>
+                            <span>Team Collaboration</span>
+                        </div>
+                        <div class="floating-card card-3">
+                            <i class="bi bi-graph-up text-warning"></i>
+                            <span>Progress Tracking</span>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="row benefits text-center">
-                    <div class="col-md-4">
-                        <h3>📅 Daily Task Tracking</h3>
-                        <p>Visualize your daily progress with ease. Add, manage, and track tasks assigned to you every
-                            day.
-                        </p>
+                <!-- Features Section -->
+                <section class="features-section">
+                    <div class="section-header text-center">
+                        <h2 class="section-title">Why Choose Progress Board?</h2>
+                        <p class="section-subtitle">Discover the features that make task management effortless and effective</p>
                     </div>
-                    <div class="col-md-4">
-                        <h3>👥 Group Collaboration</h3>
-                        <p>Create or join groups, assign tasks, and collaborate with others in a focused, productive
-                            environment.</p>
+                    <div class="row features-grid">
+                        <div class="col-lg-4 col-md-6 mb-4">
+                            <div class="feature-card">
+                                <div class="feature-icon">
+                                    <i class="bi bi-calendar-check"></i>
+                                </div>
+                                <h4>Smart Task Management</h4>
+                                <p>Organize your daily tasks with intelligent scheduling, priority management, and automated reminders that keep you on track.</p>
+                                <ul class="feature-list">
+                                    <li><i class="bi bi-check2"></i> Priority-based sorting</li>
+                                    <li><i class="bi bi-check2"></i> Due date tracking</li>
+                                    <li><i class="bi bi-check2"></i> Progress visualization</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-6 mb-4">
+                            <div class="feature-card">
+                                <div class="feature-icon">
+                                    <i class="bi bi-people"></i>
+                                </div>
+                                <h4>Team Collaboration</h4>
+                                <p>Create groups, assign tasks, and collaborate seamlessly with your team members in a focused, productive environment.</p>
+                                <ul class="feature-list">
+                                    <li><i class="bi bi-check2"></i> Real-time updates</li>
+                                    <li><i class="bi bi-check2"></i> Task assignment</li>
+                                    <li><i class="bi bi-check2"></i> Group management</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-6 mb-4">
+                            <div class="feature-card">
+                                <div class="feature-icon">
+                                    <i class="bi bi-graph-up-arrow"></i>
+                                </div>
+                                <h4>Progress Analytics</h4>
+                                <p>Get detailed insights into your productivity with comprehensive reports and visual progress tracking that motivates you to achieve more.</p>
+                                <ul class="feature-list">
+                                    <li><i class="bi bi-check2"></i> Detailed reports</li>
+                                    <li><i class="bi bi-check2"></i> Performance metrics</li>
+                                    <li><i class="bi bi-check2"></i> Goal tracking</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-6 mb-4">
+                            <div class="feature-card">
+                                <div class="feature-icon">
+                                    <i class="bi bi-shield-check"></i>
+                                </div>
+                                <h4>Secure & Reliable</h4>
+                                <p>Your data is protected with enterprise-grade security and backed up with 99.9% uptime guarantee.</p>
+                                <ul class="feature-list">
+                                    <li><i class="bi bi-check2"></i> End-to-end encryption</li>
+                                    <li><i class="bi bi-check2"></i> Regular backups</li>
+                                    <li><i class="bi bi-check2"></i> GDPR compliant</li>
+                                </ul>
+                            </div>
+                        </div>
                     </div>
-                    <div class="col-md-4">
-                        <h3>📈 Clear Progress Overview</h3>
-                        <p>Measure how far you've come with a simple and clear progress report that motivates you to
-                            achieve
-                            more.</p>
+                </section>
+
+                <!-- How It Works Section -->
+                <section class="how-it-works-section">
+                    <div class="section-header text-center">
+                        <h2 class="section-title">How It Works</h2>
+                        <p class="section-subtitle">Get started in just three simple steps</p>
                     </div>
-                </div>
+                    <div class="row steps-container">
+                        <div class="col-lg-4 text-center">
+                            <div class="step-item">
+                                <div class="step-number">1</div>
+                                <div class="step-icon">
+                                    <i class="bi bi-person-plus"></i>
+                                </div>
+                                <h4>Sign Up</h4>
+                                <p>Create your free account in seconds with email verification for security.</p>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 text-center">
+                            <div class="step-item">
+                                <div class="step-number">2</div>
+                                <div class="step-icon">
+                                    <i class="bi bi-plus-circle"></i>
+                                </div>
+                                <h4>Add Tasks</h4>
+                                <p>Create tasks, set priorities, and organize them into groups for better management.</p>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 text-center">
+                            <div class="step-item">
+                                <div class="step-number">3</div>
+                                <div class="step-icon">
+                                    <i class="bi bi-graph-up"></i>
+                                </div>
+                                <h4>Track Progress</h4>
+                                <p>Monitor your progress, collaborate with team members, and achieve your goals.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+
+                <!-- CTA Section -->
+                <section class="cta-section">
+                    <div class="cta-content">
+                        <h2 class="cta-title">Ready to Boost Your Productivity?</h2>
+                        <p class="cta-subtitle">Join thousands of users who have already transformed their workflow with Progress Board</p>
+                        <div class="cta-buttons">
+                            <button id="ctaGetStartedBtn" class="btn btn-primary btn-lg me-3">
+                                <i class="bi bi-rocket-takeoff me-2"></i>Start Free Today
+                            </button>
+                            <button class="btn btn-outline-primary btn-lg">
+                                <i class="bi bi-play-circle me-2"></i>Watch Demo
+                            </button>
+                        </div>
+                        <div class="cta-features">
+                            <div class="cta-feature">
+                                <i class="bi bi-check-circle-fill"></i>
+                                <span>Free forever plan</span>
+                            </div>
+                            <div class="cta-feature">
+                                <i class="bi bi-check-circle-fill"></i>
+                                <span>No credit card required</span>
+                            </div>
+                            <div class="cta-feature">
+                                <i class="bi bi-check-circle-fill"></i>
+                                <span>Setup in 2 minutes</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
             </div>
 
             <div id="userDashboardPreview" class="mt-4" style="display: none;">
@@ -631,15 +785,22 @@
 
                 // Set up "Get Started" button behavior
                 const getStartedBtn = document.getElementById('getStartedBtn');
+                const ctaGetStartedBtn = document.getElementById('ctaGetStartedBtn');
+                
                 if (userId) {
                     // User is logged in - update UI accordingly
                     updateUIForLoggedInUser();
                 } else {
                     // User is not logged in - setup login modal trigger
-                    getStartedBtn.onclick = function () {
+                    const showLoginModal = function () {
                         const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
                         loginModal.show();
                     };
+                    
+                    getStartedBtn.onclick = showLoginModal;
+                    if (ctaGetStartedBtn) {
+                        ctaGetStartedBtn.onclick = showLoginModal;
+                    }
                 }
 
                 // Always update navbar
@@ -656,7 +817,50 @@
                 document.querySelectorAll('.fade-in').forEach(el => {
                     el.style.opacity = '1';
                 });
+
+                // Initialize scroll animations
+                initScrollAnimations();
             });
+
+            // Scroll animations with Intersection Observer
+            function initScrollAnimations() {
+                const observerOptions = {
+                    threshold: 0.1,
+                    rootMargin: '0px 0px -50px 0px'
+                };
+
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('animated');
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, observerOptions);
+
+                // Add animation classes to elements
+                const animateElements = document.querySelectorAll(
+                    '.feature-card, .testimonial-card, .step-item, .section-header'
+                );
+                
+                animateElements.forEach(el => {
+                    el.classList.add('animate-on-scroll');
+                    observer.observe(el);
+                });
+
+                // Add staggered animation delays
+                document.querySelectorAll('.feature-card').forEach((card, index) => {
+                    card.style.animationDelay = `${index * 0.1}s`;
+                });
+
+                document.querySelectorAll('.testimonial-card').forEach((card, index) => {
+                    card.style.animationDelay = `${index * 0.1}s`;
+                });
+
+                document.querySelectorAll('.step-item').forEach((item, index) => {
+                    item.style.animationDelay = `${index * 0.2}s`;
+                });
+            }
 
         </script>
 </body>
