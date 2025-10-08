@@ -577,33 +577,77 @@
         }
 
         function renderTasks(tasks) {
-            const list = document.getElementById('taskList');
-            list.innerHTML = '';
+    const list = document.getElementById('taskList');
+    list.innerHTML = '';
 
-            if (!tasks || tasks.length === 0) {
-                list.innerHTML = '<div class="alert alert-light">No tasks added for this day yet.</div>';
-                return;
-            }
+    if (!tasks || tasks.length === 0) {
+        list.innerHTML = '<div class="alert alert-light">No tasks added for this day yet.</div>';
+        return;
+    }
 
-            tasks.forEach(task => {
-                const item = document.createElement('div');
-                item.className = 'task-item';
+    tasks.forEach((task, index) => {
+        const item = document.createElement('div');
+        item.className = 'task-item';
 
-                const checkbox = document.createElement('input');
-                checkbox.type = 'checkbox';
-                checkbox.className = 'form-check-input me-2';
-                checkbox.checked = task.completed;
-                checkbox.onchange = () => updateTaskStatus(task);
+        // Checkbox
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.className = 'form-check-input me-2';
+        checkbox.checked = task.completed;
+        checkbox.onchange = () => updateTaskStatus(task);
 
-                const label = document.createElement('span');
-                label.textContent = task.title;
-                label.className = 'flex-grow-1';
-                if (task.completed) label.classList.add('completed-task');
+        // Task label
+        const label = document.createElement('span');
+        label.textContent = task.title;
+        label.className = 'flex-grow-1';
+        if (task.completed) label.classList.add('completed-task');
 
-                item.append(checkbox, label);
-                list.appendChild(item);
-            });
-        }
+        // Edit button
+        const editBtn = document.createElement('button');
+        editBtn.className = 'btn btn-sm btn-outline-warning ms-2';
+        editBtn.textContent = 'Edit';
+        editBtn.onclick = () => editTask(task, index);
+
+        item.append(checkbox, label, editBtn);
+        list.appendChild(item);
+    });
+}
+async function editTask(task, index) {
+    const newTitle = prompt("Edit task title:", task.title);
+    if (newTitle === null || newTitle.trim() === "") return; // Cancelled or empty
+
+    task.title = newTitle.trim();
+
+    try {
+        setSectionLoading('tasks', true);
+
+        const convertedUserId = convertToObjectId(userId);
+
+        // Update the task list on the server
+        const response = await fetch(`${TASK_BASE}/update-user-tasks/${convertedUserId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(currentDay)
+        });
+
+        if (!response.ok) throw new Error('Failed to update task');
+
+        // Update local storage
+        localStorage.setItem('currentDay', JSON.stringify(currentDay));
+
+        // Re-render tasks
+        renderTasks(currentDay.tasks);
+        renderCurrentDay();
+        loadLeaderboardData();
+
+    } catch (error) {
+        console.error("Error editing task:", error);
+        alert("Failed to edit task. Please try again.");
+    } finally {
+        setSectionLoading('tasks', false);
+    }
+}
+
 
         async function updateTaskStatus(task) {
             if (!currentDay || requestFlags.updatingTask) return;
