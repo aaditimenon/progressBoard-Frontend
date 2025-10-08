@@ -19,8 +19,6 @@
         <div class="container">
             <a class="navbar-brand" href="#">Progress Board</a>
             <div class="ms-auto" id="navbarButtons">
-                <!-- Navbar buttons will be dynamically inserted here based on login state -->
-            </div>
         </div>
     </nav>
 
@@ -28,12 +26,11 @@
         <div id="alertContainer"></div>
         <div class="fade-in">
             <div id="homeContent">
-                <!-- Enhanced Hero Section -->
-                <div class="hero">
-                    <div class="hero-content">
-                        <div class="hero-badge">
-                            <i class="bi bi-lightning-charge"></i>
-                            <span>Boost Your Productivity</span>
+            <div class="hero">
+                <div class="hero-content">
+                    <div class="hero-badge">
+                        <i class="bi bi-lightning-charge"></i>
+                        <span>Boost Your Productivity</span>
                         </div>
                         <h1 class="display-3 hero-title">Stay on Track with <span class="text-gradient">Progress Board</span></h1>
                         <p class="hero-subtitle">Transform your workflow with intelligent task management, real-time collaboration, and insightful progress tracking. Built for teams and individuals who value productivity.</p>
@@ -76,8 +73,7 @@
                     </div>
                 </div>
 
-                <!-- Features Section -->
-                <section class="features-section">
+                <section id="features" class="features-section">
                     <div class="section-header text-center">
                         <h2 class="section-title">Why Choose Progress Board?</h2>
                         <p class="section-subtitle">Discover the features that make task management effortless and effective</p>
@@ -142,8 +138,7 @@
                     </div>
                 </section>
 
-                <!-- How It Works Section -->
-                <section class="how-it-works-section">
+                <section id="how-it-works" class="how-it-works-section">
                     <div class="section-header text-center">
                         <h2 class="section-title">How It Works</h2>
                         <p class="section-subtitle">Get started in just three simple steps</p>
@@ -183,8 +178,7 @@
                 </section>
 
 
-                <!-- CTA Section -->
-                <section class="cta-section">
+                <section id="cta" class="cta-section">
                     <div class="cta-content">
                         <h2 class="cta-title">Ready to Boost Your Productivity?</h2>
                         <p class="cta-subtitle">Join thousands of users who have already transformed their workflow with Progress Board</p>
@@ -233,7 +227,6 @@
             </div>
         </div>
 
-        <!-- Login Modal -->
         <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -259,7 +252,6 @@
             </div>
         </div>
 
-        <!-- Signup Modal -->
         <div class="modal fade" id="signupModal" tabindex="-1" aria-labelledby="signupModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -291,7 +283,6 @@
             </div>
         </div>
 
-        <!-- OTP Verification Modal -->
         <div class="modal fade" id="otpVerificationModal" tabindex="-1" aria-labelledby="otpVerificationModalLabel"
             aria-hidden="true" data-bs-backdrop="static">
             <div class="modal-dialog">
@@ -309,8 +300,6 @@
                                 <input type="text" maxlength="1" class="form-control otp-input" id="otp2" required>
                                 <input type="text" maxlength="1" class="form-control otp-input" id="otp3" required>
                                 <input type="text" maxlength="1" class="form-control otp-input" id="otp4" required>
-                                <!-- <input type="text" maxlength="1" class="form-control otp-input" id="otp5" required> -->
-                                <!-- <input type="text" maxlength="1" class="form-control otp-input" id="otp6" required> -->
                             </div>
                             <p>
                                 <span id="resendTimerContainer" class="resend-timer">Resend in <span
@@ -331,8 +320,41 @@
             </div>
         </div>
 
-        <footer class="text-center mt-5 py-4 border-top">
-            <p>&copy; 2025 Progress Board. All rights reserved.</p>
+        <footer class="app-footer mt-5 border-top">
+            <div class="footer-inner">
+                <div class="footer-brand">
+                    <div class="footer-logo">
+                        <i class="bi bi-kanban-fill"></i>
+                        <span>Progress Board</span>
+                    </div>
+                    <p class="footer-tagline">Track, collaborate, and celebrate progress with your team.</p>
+                </div>
+                <div class="footer-links">
+                    <h6>Product</h6>
+                    <a href="#homeContent">Overview</a>
+                    <a href="#features">Features</a>
+                    <a href="#how-it-works">How it works</a>
+                </div>
+                <div class="footer-links">
+                    <h6>Resources</h6>
+                    <a href="dashboard.html">Dashboard</a>
+                    <a href="https://github.com/jay-1409" target="_blank" rel="noopener">GitHub</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <div class="footer-social">
+                    <a href="https://twitter.com" target="_blank" rel="noopener" aria-label="Twitter">
+                        <i class="bi bi-twitter"></i>
+                    </a>
+                    <a href="https://www.linkedin.com" target="_blank" rel="noopener" aria-label="LinkedIn">
+                        <i class="bi bi-linkedin"></i>
+                    </a>
+                    <a href="https://github.com/jay-1409" target="_blank" rel="noopener" aria-label="GitHub">
+                        <i class="bi bi-github"></i>
+                    </a>
+                </div>
+                <p class="footer-copy mb-0">&copy; 2025 Progress Board. All rights reserved.</p>
+            </div>
         </footer>
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
