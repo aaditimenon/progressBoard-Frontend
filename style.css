@@ -301,6 +301,7 @@ body {
     margin-top: 3rem;
 }
 
+
 .section-header {
     margin-bottom: 4rem;
 }
@@ -391,7 +392,7 @@ body {
 
 /* How It Works Section */
 .how-it-works-section {
-    background: linear-gradient(135deg, #f7fafc, #edf2f7);
+    background: linear-gradient(135deg, #313131, #2c2c2c);
     border-radius: 2rem;
     margin: 3rem 0;
 }
@@ -440,12 +441,12 @@ body {
 .step-item h4 {
     font-size: 1.5rem;
     font-weight: 600;
-    color: #2d3748;
+    color: #f2f2f2;
     margin-bottom: 1rem;
 }
 
 .step-item p {
-    color: #718096;
+    color: #e8e8e8;
     line-height: 1.6;
 }
 
@@ -1021,4 +1022,170 @@ body > .container {
    Use !important to override Bootstrap utility class mt-5 on the footer. */
 body > .container > footer {
     margin-top: auto !important;
+}
+
+/* Dark Mode Styles */
+body.dark-mode {
+    background: linear-gradient(160deg, #0d1117 0%, #1a202c 50%, #2d3748 100%);
+    color: #e5e7eb;
+}
+
+/* Ensure common Bootstrap light classes switch in dark mode */
+body.dark-mode .bg-white,
+body.dark-mode .bg-light {
+    background-color: #1e293b !important;
+    color: #f9fafb !important;
+}
+body.dark-mode .text-dark {
+    color: #f9fafb !important;
+}
+body.dark-mode .text-muted {
+    color: #94a3b8 !important;
+}
+body.dark-mode .text-body {
+    color: #e5e7eb !important;
+}
+body.dark-mode .text-black {
+    color: #f9fafb !important;
+}
+body.dark-mode .text-primary {
+    color: #a78bfa !important;
+}
+body.dark-mode .section-title,
+body.dark-mode .section-subtitle {
+    color: #ffffff !important;
+}
+
+/* Navbar: deeper slate with indigo accents */
+body.dark-mode .navbar {
+    background-color: #0f172a !important;
+    border-bottom: 1px solid #334155;
+}
+body.dark-mode .navbar-brand,
+body.dark-mode .nav-link {
+    color: #e2e8f0 !important;
+}
+body.dark-mode .nav-link:hover {
+    color: #818cf8 !important;
+}
+
+/* Buttons: vibrant indigo & purple */
+body.dark-mode .btn-outline-primary {
+    color: #a78bfa !important;
+    border-color: #a78bfa !important;
+}
+body.dark-mode .btn-outline-primary:hover {
+    background-color: #8b5cf6 !important;
+    color: #fff !important;
+}
+body.dark-mode .btn-primary {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6) !important;
+    border-color: #6366f1 !important;
+}
+
+/* Cards: softer slate */
+body.dark-mode .card,
+body.dark-mode .feature-card,
+body.dark-mode .testimonial-card {
+    background: #1e293b !important;
+    color: #f1f5f9 !important;
+    border-color: #334155 !important;
+    box-shadow: 0 8px 25px rgba(0,0,0,.35);
+}
+
+/* Hero section: deeper gradient */
+body.dark-mode .hero {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+}
+
+/* Feature icons & step numbers: bright indigo gradient */
+body.dark-mode .feature-icon,
+body.dark-mode .step-number {
+    background: linear-gradient(135deg, #818cf8, #a78bfa);
+}
+
+/* Alerts: richer tones */
+body.dark-mode .alert-info {
+    background-color: #1d4ed8 !important;
+    color: #dbeafe !important;
+    border-color: #2563eb !important;
+}
+body.dark-mode .alert-danger {
+    background-color: #991b1b !important;
+    color: #fee2e2 !important;
+    border-color: #dc2626 !important;
+}
+
+/* Footer: deep navy */
+body.dark-mode .app-footer {
+    background: linear-gradient(160deg, #0f172a, #1e293b);
+    color: #cbd5e1;
+    border-top-color: #334155;
+}
+body.dark-mode .feature-card h4,
+body.dark-mode .feature-card p,
+body.dark-mode .feature-list li {
+    color: #f1f5f9 !important;
+}
+body.dark-mode .feature-list li i {
+    color: #a78bfa !important;
+}
+
+/* Animated Theme Toggle */
+.theme-toggle {
+  position: relative;
+  width: 56px;
+  height: 28px;
+}
+.theme-toggle-input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.theme-toggle-label {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: #111827;
+  border-radius: 28px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 0 6px;
+  transition: background .3s ease;
+}
+.theme-icon {
+  font-size: 16px;
+  z-index: 2;
+  transition: opacity .3s ease;
+}
+.sun {
+  color: #f59e0b;
+  margin-right: auto;
+}
+.moon {
+  color: #e0e7ff;
+  margin-left: auto;
+}
+.theme-toggle-ball {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform .3s ease;
+  z-index: 1;
+}
+.theme-toggle-input:checked + .theme-toggle-label {
+  background: #4f46e5;
+}
+.theme-toggle-input:checked + .theme-toggle-label .sun {
+  opacity: 0;
+}
+.theme-toggle-input:checked + .theme-toggle-label .moon {
+  opacity: 1;
+}
+.theme-toggle-input:checked + .theme-toggle-label .theme-toggle-ball {
+  transform: translateX(28px);
 }
