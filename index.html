@@ -15,10 +15,19 @@
         <div class="spinner-border text-primary" role="status"></div>
     </div>
 
-    <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+    <nav class="navbar navbar-expand-lg ftco_navbar ftco-navbar-light" id="ftco-navbar">
         <div class="container">
-            <a class="navbar-brand" href="#">Progress Board</a>
-            <div class="ms-auto" id="navbarButtons">
+            <a class="navbar-brand" href="index.html">Progress Board</a>
+            <!-- Dark Mode Toggle Switch -->
+            <div class="theme-toggle me-3">
+                <input type="checkbox" id="themeToggleSwitch" class="theme-toggle-input">
+                <label for="themeToggleSwitch" class="theme-toggle-label">
+                    <i class="bi bi-sun theme-icon sun"></i>
+                    <i class="bi bi-moon-stars theme-icon moon"></i>
+                    <span class="theme-toggle-ball"></span>
+                </label>
+            </div>
+            <div class="d-flex align-items-center ms-auto" id="navbarButtons"></div>
         </div>
     </nav>
 
@@ -885,6 +894,29 @@
             }
 
         </script>
+    <script>
+        // Theme Toggle Script using the navbar switch
+        (function () {
+            const themeToggleSwitch = document.getElementById('themeToggleSwitch');
+            if (!themeToggleSwitch) return;
+
+            const applyTheme = (isDark) => {
+                document.body.classList.toggle('dark-mode', isDark);
+                themeToggleSwitch.checked = isDark;
+            };
+
+            // Apply stored preference if exists
+            const storedPref = localStorage.getItem('theme');
+            applyTheme(storedPref === 'dark');
+
+            // Listen for toggle changes
+            themeToggleSwitch.addEventListener('change', (e) => {
+                const isDark = e.target.checked;
+                localStorage.setItem('theme', isDark ? 'dark' : 'light');
+                applyTheme(isDark);
+            });
+        })();
+    </script>
 </body>
 
 </html>
